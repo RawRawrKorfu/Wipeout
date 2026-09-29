@@ -28,7 +28,7 @@ h1{margin:0 0 4px;font-size:28px;letter-spacing:2px;color:#ffd34d}
 <div class="tabs"><button class="tab" data-t="tricks">Tricks</button><button class="tab" data-t="parkour">Parkour</button><button class="tab" data-t="tech">Tech</button><button class="tab" data-t="rides">Rides</button><button class="tab" data-t="skins">Skins</button><button class="tab" data-t="clothes">Clothes</button><button class="tab" data-t="controls">Controls</button></div>
 <div id="list"></div>
 <button id="play">▶ PLAY (Enter)</button>
-<p class="help"><b>D/A</b> run · <b>S</b> slide (under red blocks) · <b>W/Space</b> jump — press jump right as you land for a <b>BHOP</b> (coins + speed). Hold <b>E</b> and flick the mouse in the air: up = frontflip, down = backflip, right = spin, left = superman. Hold <b>Q</b> or <b>F</b> + flick for skateboard/scooter tricks. Parkour tab: <b>V</b> vaults walls (Speed / Kong Vault), plus wall kicks, gainers off roof edges, rolls, precision landings and double jump. Rooftop runs spawn between the street sections. Tech tab: <b>Shift</b> air dash, <b>S</b> in the air = stomp, slide-fling, ramp-fling, mantle, flow and hang time. <b>Slide-hop:</b> jump, tap/hold <b>S</b> as you land, jump again (J S J S) to keep your bhop chain. The mouse is captured while playing (click the game if Esc released it). New tricks use separate keys by default (1–0); open Controls to rebind them. Quickstep, hold W near a wall for Wall Run, and V in the air for Cat Leap. Land upright to bank tricks. <b>X</b> = cash out &amp; leave with your coins. <b>Fall = lose everything you carried.</b></p>
+<p class="help"><b>D/A</b> run · <b>S</b> slide (under red blocks) · <b>W/Space</b> jump — press jump right as you land for a <b>BHOP</b> (coins + speed). Hold <b>E</b> and flick the mouse in the air: up = frontflip, down = backflip, right = spin, left = superman. Hold <b>Q</b> or <b>F</b> + flick for skateboard/scooter tricks. Parkour and Tech actions are rebindable in the Controls tab; defaults are shown there. Vault, wall kick, gainer, roll, double jump, wall run and Cat Leap are all independent bindings. Rooftop runs spawn between the street sections. Tech includes air dash, stomp, slide-fling, ramp-fling, mantle, Quickstep, Air Brake and Flow Boost. <b>Slide-hop:</b> jump, tap/hold <b>S</b> as you land, jump again (J S J S) to keep your bhop chain. The mouse is captured while playing (click the game if Esc released it). New tricks use separate keys by default (1–0); open Controls to rebind them. Cat Leap no longer uses V; its default is N, and you can change it in Controls. Land upright to bank tricks. <b>X</b> = cash out &amp; leave with your coins. <b>Fall = lose everything you carried.</b></p>
 </div></div>
 <script>
 const $=id=>document.getElementById(id),cv=$('c'),ctx=cv.getContext('2d'),TAU=Math.PI*2;
@@ -50,18 +50,18 @@ TRICKS.push({id:'aerial',n:'Aerial',p:150,v:26,r:'foot',k:'F',d:'R'},{id:'webste
 {id:'butter',n:'Butterfly Twist',p:220,v:34,r:'foot',k:'F',d:'D'},{id:'cork',n:'Cork',p:300,v:42,r:'foot',k:'F',d:'L'},
 {id:'speed',n:'Speed Vault',p:70,r:'any',u:1,pk:1,info:'Press V near a low obstacle: hand-plant hop over it, keep your speed · 8 coins'},
 {id:'kong',n:'Kong Vault',p:110,r:'any',u:1,pk:1,info:'Press V near a tall wall/crate/roof edge: dive over it with a speed boost · 14 coins'},
-{id:'wall',n:'Wall Kick',p:160,r:'any',u:1,pk:1,info:'Press jump in mid-air next to a wall to kick up it (chain to climb) · 6 coins'},
-{id:'gainer',n:'Gainer',p:200,v:45,r:'any',u:1,pk:1,dbl:'back',info:'Backflip after walking off a ledge or roof edge · 45 coins (needs Backflip)'},
-{id:'roll',n:'Parkour Roll',p:90,r:'any',u:1,pk:1,info:'Hold S when landing from a big drop · 16 coins'},
+{id:'wall',n:'Wall Kick',p:160,r:'any',u:1,pk:1,bind:'KeyB',info:'Press jump in mid-air next to a wall to kick up it (chain to climb) · 6 coins'},
+{id:'gainer',n:'Gainer',p:200,v:45,r:'any',u:1,pk:1,bind:'KeyG',dbl:'back',info:'Backflip after walking off a ledge or roof edge · 45 coins (needs Backflip)'},
+{id:'roll',n:'Parkour Roll',p:90,r:'any',u:1,pk:1,bind:'KeyZ',info:'Hold S when landing from a big drop · 16 coins'},
 {id:'prec',n:'Precision',p:70,r:'any',u:1,pk:1,info:'Land right on the edge of a rooftop after a jump · 10 coins'},
-{id:'dash',n:'Air Dash',p:90,r:'any',u:1,tech:1,info:'Shift in mid-air: burst of forward speed (once per jump) · 4 coins'},
-{id:'sfling',n:'Slide Fling',p:120,r:'any',u:1,tech:1,info:'Slide for a moment, then jump: you get flung forward and up, big speed · 12 coins'},
-{id:'rfling',n:'Ramp Fling',p:140,r:'any',u:1,tech:1,info:'Jump while on a ramp: launched much higher and faster than the ramp alone · 12 coins'},
-{id:'stomp',n:'Stomp',p:100,r:'any',u:1,tech:1,info:'Press S in mid-air to slam down: instant landing, a little speed · 8 coins'},
-{id:'mantle',n:'Mantle',p:130,r:'any',u:1,tech:1,info:'Hold jump when you hit a wall up to ~110 high: you pull up onto it instead of wiping out · 6 coins'},
+{id:'dash',n:'Air Dash',p:90,r:'any',u:1,tech:1,bind:'ShiftLeft',info:'Shift in mid-air: burst of forward speed (once per jump) · 4 coins'},
+{id:'sfling',n:'Slide Fling',p:120,r:'any',u:1,tech:1,bind:'KeyU',info:'Slide for a moment, then jump: you get flung forward and up, big speed · 12 coins'},
+{id:'rfling',n:'Ramp Fling',p:140,r:'any',u:1,tech:1,bind:'KeyI',info:'Jump while on a ramp: launched much higher and faster than the ramp alone · 12 coins'},
+{id:'stomp',n:'Stomp',p:100,r:'any',u:1,tech:1,bind:'KeyO',info:'Press S in mid-air to slam down: instant landing, a little speed · 8 coins'},
+{id:'mantle',n:'Mantle',p:130,r:'any',u:1,tech:1,bind:'KeyM',info:'Hold jump when you hit a wall up to ~110 high: you pull up onto it instead of wiping out · 6 coins'},
 {id:'flow',n:'Flow',p:180,r:'any',u:1,tech:1,info:'Chain moves within 3.5s: each one adds +10% coins (up to +100%)'},
 {id:'hang',n:'Hang Time',p:110,r:'any',u:1,tech:1,info:'Land after more than 1s in the air for bonus coins'});
-TRICKS.unshift({id:'djump',n:'Double Jump',p:150,v:0,r:'any',u:1,pk:1,info:'Press jump again in mid-air (close to the ground it stays a bhop buffer)'});
+TRICKS.unshift({id:'djump',n:'Double Jump',p:150,v:0,r:'any',u:1,pk:1,bind:'KeyC',info:'Press jump again in mid-air (close to the ground it stays a bhop buffer)'});
 
 // Extra tricks
 TRICKS.push(
@@ -77,12 +77,12 @@ TRICKS.push(
  {id:'flash',n:'Flash Kick',p:320,v:46,r:'foot',bind:'Digit0'}
 );
 TRICKS.push(
- {id:'wallrun',n:'Wall Run',p:180,r:'any',u:1,pk:1,info:'Hold W near a wall while airborne to run along it · 10 coins'},
- {id:'cat',n:'Cat Leap',p:220,r:'any',u:1,pk:1,info:'Press V near a wall/ledge while airborne to spring away · 12 coins'},
+ {id:'wallrun',n:'Wall Run',p:180,r:'any',u:1,pk:1,bind:'KeyR',info:'Hold W near a wall while airborne to run along it · 10 coins'},
+ {id:'cat',n:'Cat Leap',p:220,r:'any',u:1,pk:1,bind:'KeyN',info:'Press N near a wall/ledge while airborne to spring away · 12 coins'},
  {id:'drop',n:'Drop Precision',p:150,r:'any',u:1,pk:1,info:'Land from a high rooftop drop cleanly · 20 coins'},
- {id:'quick',n:'Quickstep',p:170,r:'any',u:1,tech:1,info:'Double-tap A/D quickly to burst sideways · 8 coins'},
- {id:'brake',n:'Air Brake',p:130,r:'any',u:1,tech:1,info:'Tap A/D opposite your momentum in mid-air to control a landing · 6 coins'},
- {id:'boost',n:'Flow Boost',p:260,r:'any',u:1,tech:1,info:'Reach 5 Flow moves to get a temporary speed burst · 20 coins'},
+ {id:'quick',n:'Quickstep',p:170,r:'any',u:1,tech:1,bind:'KeyT',info:'Double-tap A/D quickly to burst sideways · 8 coins'},
+ {id:'brake',n:'Air Brake',p:130,r:'any',u:1,tech:1,bind:'KeyY',info:'Tap A/D opposite your momentum in mid-air to control a landing · 6 coins'},
+ {id:'boost',n:'Flow Boost',p:260,r:'any',u:1,tech:1,bind:'KeyP',info:'Reach 5 Flow moves to get a temporary speed burst · 20 coins'},
  {id:'magnet',n:'Coin Magnet',p:240,r:'any',u:1,tech:1,info:'Nearby coins are pulled toward you while airborne · passive'}
 );
 const DUR={spin:.35,sup:.55,kick:.4,shove:.4,heel:.4,f360:.55,whip:.4,bar:.4,nohand:.5,hard:.45,aerial:.5,webster:.5,butter:.55,cork:.6,imp:.5,varial:.4,laser:.6,table:.5,turn:.5,decade:.5,fs540:.65,bs540:.65,cannon:.5,seat:.55,rocket:.55,mute:.45,indy:.45,barspin360:.65,wallspin:.55,flash:.6};
@@ -101,7 +101,7 @@ const CL=[{id:'cap',n:'Cap',p:80,b:'Bhop coins ×1.5'},{id:'shades',n:'Shades',p
 {id:'wrist',n:'Tech Wristband',p:1000,b:'Air Dash +20% burst'}];
 const T=id=>TRICKS.find(t=>t.id==id);
 let SV={bank:0,tr:{},rides:{foot:1},skins:{0:1},skin:0,cl:{},eq:{},ride:'foot'};
-const DEFAULT_BINDS={fs540:'Digit1',bs540:'Digit2',cannon:'Digit3',seat:'Digit4',rocket:'Digit5',mute:'Digit6',indy:'Digit7',barspin360:'Digit8',wallspin:'Digit9',flash:'Digit0'};
+const DEFAULT_BINDS={vault:'KeyV',wall:'KeyB',gainer:'KeyG',roll:'KeyZ',djump:'KeyC',wallrun:'KeyR',cat:'KeyN',quick:'KeyT',brake:'KeyY',dash:'ShiftLeft',sfling:'KeyU',rfling:'KeyI',stomp:'KeyO',mantle:'KeyM',boost:'KeyP',fs540:'Digit1',bs540:'Digit2',cannon:'Digit3',seat:'Digit4',rocket:'Digit5',mute:'Digit6',indy:'Digit7',barspin360:'Digit8',wallspin:'Digit9',flash:'Digit0'};
 try{const s=JSON.parse(localStorage.getItem('bhopSave'));if(s)SV=Object.assign(SV,s)}catch(e){}
 SV.bind=Object.assign({},DEFAULT_BINDS,SV.bind||{});
 const save=()=>{try{localStorage.setItem('bhopSave',JSON.stringify(SV))}catch(e){}};
@@ -116,12 +116,16 @@ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t
 const row=(n,d,l,a,dis,sw)=>`<div class="row">${sw?`<i style="background:${sw}"></i>`:''}<div><b>${n}</b><small>${d}</small></div><button data-a="${a}" ${dis?'disabled':''}>${l}</button></div>`;
 let h='';
 if(tab=='tricks'||tab=='parkour'||tab=='tech')TRICKS.filter(t=>tab=='parkour'?t.pk:tab=='tech'?t.tech:!t.pk&&!t.tech).forEach(t=>{const o=SV.tr[t.id],need=t.dbl&&!SV.tr[t.dbl];
-const trigger=t.bind?'Press '+keyName(SV.bind[t.id]||t.bind)+' while airborne':(t.dbl?'Flick '+(t.dbl=='front'?'up':'down')+' twice in one jump':t.k+' + flick '+CN[t.d]);
+const trigger=t.bind?'Press '+keyName(SV.bind[t.id]||t.bind)+(t.pk||t.tech?' to activate':' while airborne'):(t.dbl?'Flick '+(t.dbl=='front'?'up':'down')+' twice in one jump':t.k+' + flick '+CN[t.d]);
 h+=row(t.n,t.u?t.info:trigger+' · '+t.v+' base coins'+(t.r!='any'?' · '+RIDES[t.r].n+' only':''),o?'Owned ✓':need?'Needs '+T(t.dbl).n:t.p+' 🪙','t:'+t.id,o||need||SV.bank<t.p)});
 if(tab=='controls'){
- h+='<div class="row"><div><b>Rebindable new tricks</b><small>Click Bind, then press a key. Bindings are saved automatically.</small></div></div>';
- TRICKS.filter(t=>t.bind).forEach(t=>{h+=row(t.n,'Current key: <b>'+keyName(SV.bind[t.id]||t.bind)+'</b>',waitingBind===t.id?'Press a key…':'Bind','b:'+t.id,waitingBind&&waitingBind!==t.id)});
- h+='<div class="row"><div><b>Movement</b><small>D/A or Right/Left = run · S/Down = slide · W/Space/Up = jump · V = vault · Shift = air dash · X = cash out</small></div></div>';
+ h+='<div class="row"><div><b>Rebind Parkour & Tech</b><small>Every active Parkour/Tech ability can be rebound. Click Bind, then press any key. Changes are saved automatically.</small></div></div>';
+ h+=row('Vault (Speed / Kong)','Current key: <b>'+keyName(SV.bind.vault)+'</b>',waitingBind==='vault'?'Press a key…':'Bind','b:vault',waitingBind&&waitingBind!=='vault');
+ TRICKS.filter(t=>(t.pk||t.tech)&&t.bind).forEach(t=>{h+=row(t.n,'Current key: <b>'+keyName(SV.bind[t.id]||t.bind)+'</b>',waitingBind===t.id?'Press a key…':'Bind','b:'+t.id,waitingBind&&waitingBind!==t.id)});
+ h+='<div class="row"><div><b>Automatic Parkour / Tech</b><small>Precision, Drop Precision, Flow and Hang Time trigger automatically when their conditions are met.</small></div></div>';
+ h+='<div class="row"><div><b>Extra Tricks</b><small>These are also fully rebindable below.</small></div></div>';
+ TRICKS.filter(t=>t.bind&&!t.pk&&!t.tech).forEach(t=>{h+=row(t.n,'Current key: <b>'+keyName(SV.bind[t.id]||t.bind)+'</b>',waitingBind===t.id?'Press a key…':'Bind','b:'+t.id,waitingBind&&waitingBind!==t.id)});
+ h+='<div class="row"><div><b>Core controls</b><small>D/A or Right/Left = run · S/Down = slide · W/Space/Up = jump · Vault key = Speed/Kong Vault · X = cash out. Classic E/Q/F flick tricks remain gesture-based.</small></div></div>';
 }
 if(tab=='rides')Object.entries(RIDES).forEach(([k,r])=>{const o=SV.rides[k];h+=row(r.n,r.d,SV.ride==k?'Riding':o?'Ride':r.p+' 🪙','r:'+k,SV.ride==k||(!o&&SV.bank<r.p))});
 if(tab=='skins')SKINS.forEach((s,i)=>{const o=SV.skins[i];h+=row(s.n,'+5% coins on everything',SV.skin==i?'Wearing':o?'Wear':s.p+' 🪙','s:'+i,SV.skin==i||(!o&&SV.bank<s.p),s.c)});
@@ -166,7 +170,7 @@ const L=[];for(const f of['front','back']){const c=p.fc[f];if(c==1)L.push(f=='ba
 p.at.forEach(id=>L.push(T(id)));
 if(L.length){const v=L.reduce((a,t)=>a+t.v,0)*(1+.25*(L.length-1))*RIDES[SV.ride].m*cm()*(SV.eq.shades?1.15:1)*(SV.eq.backpack?1.1:1)*(SV.eq.jacket?1.1:1);add(v,L.map(t=>t.n).join(' + '))}
 const m=RIDES[SV.ride].m*cm();
-if(p.airT>.55&&(K.KeyS||K.ArrowDown)&&SV.tr.roll){add(16*m*(SV.eq.kneepads?1.25:1),'ROLL');p.rollT=.4}
+if(p.airT>.55&&K[SV.bind.roll]&&SV.tr.roll){add(16*m*(SV.eq.kneepads?1.25:1),'ROLL');p.rollT=.4}
 if(p.airT>1.25&&SV.tr.drop){add(20*m*(SV.eq.kneepads?1.25:1),'DROP PRECISION')}
 if(p.flow>=5&&SV.tr.boost){p.boostT=2.5;p.vx+=90;add(20*m*(SV.eq.jacket?1.1:1),'FLOW BOOST')}
 const rf=p.ob.find(o=>o.t=='h'&&p.px>=o.x&&p.px-o.x<30);if(rf&&p.airT>.35&&SV.tr.prec)add(10*m,'PRECISION');
@@ -198,14 +202,10 @@ p.px+=p.vx*dt;if(p.px<p.cam+40){p.px=p.cam+40;p.vx=Math.max(p.vx,0)}
 p.cam=Math.max(p.cam,p.px-W*.3);
 if(p.wk>0&&!p.gnd&&SV.tr.wall)for(const o of p.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-p.px;
 if(d<38&&d>-8&&p.py>GY-o.h+10&&p.py<GY-o.h+150){p.vy=-720;p.vx=Math.max(p.vx,240);p.vlt=.3;p.wk=0;p.dj=0;add(6*cm(),'WALL KICK');break}}
-if(!p.gnd&&SV.tr.wallrun&&(K.KeyW||K.ArrowUp)&&p.wallT<=0)for(const o of p.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-p.px,top=GY-o.h;
-if(d<42&&d>-16&&p.py>top-18&&p.py<top+115){p.wallT=.75;p.vy=-430;p.vx=Math.max(p.vx,230);add(10*cm(),'WALL RUN');break}}
-if(!p.gnd&&SV.tr.cat&&p.catT<=0&&K.KeyV)for(const o of p.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-p.px,top=GY-o.h;
-if(Math.abs(d)<55&&p.py>top-30&&p.py<top+130){p.catT=.8;p.vy=-610;p.vx=(d>0?-1:1)*Math.max(260,Math.abs(p.vx)+60);add(12*cm(),'CAT LEAP');break}}
 const top=p.py-(p.slide?24:52);
 for(const o of p.ob){if(p.px+9<o.x||p.px-9>o.x+o.w)continue;
 if((o.t=='c'||o.t=='h')&&p.vlt<=0&&p.py>GY-o.h+14){const rel=p.py-(GY-o.h);
-if(SV.tr.mantle&&rel<=110&&(K.KeyW||K.Space||K.ArrowUp)){p.py=GY-o.h;p.px=o.x+3;p.vy=0;p.vx*=.8;p.gnd=true;p.gT=0;p.vlt=.2;p.on=null;p.st=0;p.airT=0;p.rot=p.rt=0;p.fc={front:0,back:0};p.at=[];p.an=null;add(6*cm(),'MANTLE');continue}
+if(SV.tr.mantle&&rel<=110&&K[SV.bind.mantle]){p.py=GY-o.h;p.px=o.x+3;p.vy=0;p.vx*=.8;p.gnd=true;p.gT=0;p.vlt=.2;p.on=null;p.st=0;p.airT=0;p.rot=p.rt=0;p.fc={front:0,back:0};p.at=[];p.an=null;add(6*cm(),'MANTLE');continue}
 return crash()}
 if(o.t=='b'&&p.py>GY-72&&top<GY-34)return crash()}
 const s=surf(p.px);
@@ -235,23 +235,35 @@ setInterval(()=>{if(G&&G.dead){G.pop.forEach(o=>o.l-=.016);G.pt.forEach(o=>{o.l-
 
 /* ---------- INPUT ---------- */
 addEventListener('keydown',e=>{
-if(waitingBind){e.preventDefault();if(e.code!='Escape'){const used=Object.entries(SV.bind).find(([id,c])=>c===e.code&&id!==waitingBind);if(used){$('msg').textContent='That key is already bound to '+T(used[0]).n;return}SV.bind[waitingBind]=e.code;save();}waitingBind=null;shop();return}
+if(waitingBind){e.preventDefault();if(e.code!='Escape'){const used=Object.entries(SV.bind).find(([id,c])=>c===e.code&&id!==waitingBind);if(used){$('msg').textContent='That key is already bound to '+(T(used[0])?T(used[0]).n:used[0]);return}SV.bind[waitingBind]=e.code;save();}waitingBind=null;shop();return}
 K[e.code]=1;
 if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
 if(!G){if(e.code=='Enter'&&!e.repeat)start();return}
-if(['KeyW','Space','ArrowUp'].includes(e.code)&&!e.repeat&&!G.dead){if(!G.gnd&&SV.tr.wall)G.wk=.25;if(!G.gnd&&SV.tr.djump&&!G.dj&&!(G.vy>0&&surf(G.px)-G.py<55)){G.dj=1;G.vy=-560;dust(G.px,G.py,5);G.pop.push({x:G.px,y:G.py-75,txt:'DOUBLE JUMP',l:.7})}else G.jb=.14}
+const pressed=id=>(SV.bind[id]||T(id)?.bind)===e.code;
+if(['KeyW','Space','ArrowUp'].includes(e.code)&&!e.repeat&&!G.dead&&G.gnd)G.jb=.14;
+if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.djump&&pressed('djump')&&!G.dj&&!(G.vy>0&&surf(G.px)-G.py<55)){G.dj=1;G.vy=-560;dust(G.px,G.py,5);G.pop.push({x:G.px,y:G.py-75,txt:'DOUBLE JUMP',l:.7});e.preventDefault()}
+if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.wall&&pressed('wall')){G.wk=.25;e.preventDefault()}
+if(!e.repeat&&!G.dead){
+ if(SV.tr.wallrun&&pressed('wallrun')&&!G.gnd){G.wallT=.75;G.vy=-430;G.vx=Math.max(G.vx,230);add(10*cm(),'WALL RUN');}
+ if(SV.tr.cat&&pressed('cat')&&!G.gnd&&G.catT<=0){for(const o of G.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-G.px,top=GY-o.h;if(Math.abs(d)<55&&G.py>top-30&&G.py<top+130){G.catT=.8;G.vy=-610;G.vx=(d>0?-1:1)*Math.max(260,Math.abs(G.vx)+60);add(12*cm(),'CAT LEAP');break}}}
+ if(SV.tr.sfling&&pressed('sfling')&&G.gnd&&G.slide&&G.slT>.25){G.vy=-720;G.vx=Math.max(G.vx,310)*1.45;add(12*cm(),'SLIDE FLING');}
+ if(SV.tr.rfling&&pressed('rfling')&&G.gnd&&G.on&&G.on.t=='r'){G.vy=-Math.min(1000,860+G.vx*.2);G.vx*=1.2;add(12*cm(),'RAMP FLING');}
+ if(SV.tr.mantle&&pressed('mantle')&&!G.gnd){for(const o of G.ob){if((o.t=='c'||o.t=='h')&&G.px+9>=o.x&&G.px-9<=o.x+o.w){const rel=G.py-(GY-o.h);if(rel<=110){G.py=GY-o.h;G.px=o.x+3;G.vy=0;G.vx*=.8;G.gnd=true;G.gT=0;G.vlt=.2;G.on=null;G.airT=0;G.rot=G.rt=0;G.fc={front:0,back:0};G.at=[];G.an=null;add(6*cm(),'MANTLE');break}}}}
+ if(SV.tr.gainer&&pressed('gainer')&&!G.gnd&&G.ledge){G.fc.back=Math.max(G.fc.back,1);G.rt-=TAU;add(45*cm(),'GAINER');}
+ if(SV.tr.boost&&pressed('boost')&&G.flow>=5){G.boostT=1.2;G.flow=0;add(20*cm(),'FLOW BOOST');}
+}
 if(!e.repeat&&!G.gnd&&!G.dead){const hit=TRICKS.find(t=>t.bind&&(SV.bind[t.id]||t.bind)===e.code&&(t.r=='any'||t.r==SV.ride));if(hit&&SV.tr[hit.id]&&!G.an){G.an={id:hit.id,t:0,d:DUR[hit.id]||.5};e.preventDefault();}}
-if(e.code=='KeyX')cash();if(e.code=='KeyV'&&!e.repeat&&!G.dead)vault();
-if((e.code=='KeyA'||e.code=='KeyD')&&!e.repeat&&!G.dead&&G.gnd&&SV.tr.quick){
-const now=performance.now(),dir=e.code=='KeyD'?1:-1;
+if(e.code=='KeyX')cash();if(!e.repeat&&!G.dead&&pressed('vault'))vault();
+if(!e.repeat&&!G.dead&&G.gnd&&SV.tr.quick&&pressed('quick')){
+const now=performance.now(),dir=(K.KeyD||K.ArrowRight)?1:-1;
 if(G.lastDir==dir&&now-G.quickLast<260){G.vx=Math.max(Math.abs(G.vx)+140,280)*dir;G.quickT=.28;add(8*cm(),'QUICKSTEP');dust(G.px,G.py,8);G.quickLast=0}
 else{G.lastDir=dir;G.quickLast=now}}
-if((e.code=='KeyA'||e.code=='KeyD')&&!e.repeat&&!G.dead&&!G.gnd&&SV.tr.brake&&!G.brakeT){
-const dir=e.code=='KeyD'?1:-1;
+if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.brake&&!G.brakeT&&pressed('brake')){
+const dir=G.vx>=0?-1:1;
 if((dir>0&&G.vx<0)||(dir<0&&G.vx>0)){G.vx*=.55;G.brakeT=.18;add(6*cm()*(SV.eq.jacket?1.1:1),'AIR BRAKE');dust(G.px,G.py,5)}
 }
-if((e.code=='ShiftLeft'||e.code=='ShiftRight')&&!e.repeat&&!G.dead&&!G.gnd&&SV.tr.dash&&!G.ad){G.ad=1;G.vx=Math.max(G.vx,300)+340*(SV.eq.wrist?1.2:1);G.vy*=.5;dust(G.px,G.py,8);add(4*cm()*(SV.eq.jacket?1.1:1),'AIR DASH')}
-if(e.code=='KeyS'&&!e.repeat&&!G.dead&&!G.gnd&&SV.tr.stomp&&!G.st){G.st=1;G.vy=Math.max(G.vy,950);G.vx*=.9}
+if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.dash&&!G.ad&&pressed('dash')){G.ad=1;G.vx=Math.max(G.vx,300)+340*(SV.eq.wrist?1.2:1);G.vy*=.5;dust(G.px,G.py,8);add(4*cm()*(SV.eq.jacket?1.1:1),'AIR DASH')}
+if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.stomp&&!G.st&&pressed('stomp')){G.st=1;G.vy=Math.max(G.vy,950);G.vx*=.9}
 if(e.code=='KeyE'||e.code=='KeyQ'||e.code=='KeyF')mb=[]});
 cv.onclick=()=>{if(G&&!G.dead&&!document.pointerLockElement)try{cv.requestPointerLock()}catch(e){}};
 addEventListener('keyup',e=>K[e.code]=0);addEventListener('blur',()=>K={});
