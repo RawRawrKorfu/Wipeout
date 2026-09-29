@@ -168,9 +168,9 @@ function land(s){const p=G;p.py=s;p.vy=0;p.gnd=true;p.gT=0;p.dj=0;p.on=rampAt(p.
 if(Math.abs(p.rt-p.rot)>.9)return crash();
 const L=[];for(const f of['front','back']){const c=p.fc[f];if(c==1)L.push(f=='back'&&p.ledge&&SV.tr.gainer?T('gainer'):T(f));else if(c>=2)L.push(T('d'+f))}
 p.at.forEach(id=>L.push(T(id)));
-if(L.length){const v=L.reduce((a,t)=>a+t.v,0)*(1+.25*(L.length-1))*RIDES[SV.ride].m*cm()*(SV.eq.shades?1.15:1)*(SV.eq.backpack?1.1:1)*(SV.eq.jacket?1.1:1);add(v,L.map(t=>t.n).join(' + '))}
+if(L.length){const v=L.reduce((a,t)=>a+(t.v||0),0)*(1+.25*(L.length-1))*RIDES[SV.ride].m*cm()*(SV.eq.shades?1.15:1)*(SV.eq.backpack?1.1:1)*(SV.eq.jacket?1.1:1);add(v,L.map(t=>t.n).join(' + '))}
 const m=RIDES[SV.ride].m*cm();
-if(p.airT>.55&&K[SV.bind.roll]&&SV.tr.roll){add(16*m*(SV.eq.kneepads?1.25:1),'ROLL');p.rollT=.4}
+if(p.airT>.85&&(K[SV.bind.roll]||K.KeyS||K.ArrowDown)&&SV.tr.roll){add(16*m*(SV.eq.kneepads?1.25:1),'ROLL');p.rollT=.4}
 if(p.airT>1.25&&SV.tr.drop){add(20*m*(SV.eq.kneepads?1.25:1),'DROP PRECISION')}
 if(p.flow>=5&&SV.tr.boost){p.boostT=2.5;p.vx+=90;add(20*m*(SV.eq.jacket?1.1:1),'FLOW BOOST')}
 const rf=p.ob.find(o=>o.t=='h'&&p.px>=o.x&&p.px-o.x<30);if(rf&&p.airT>.35&&SV.tr.prec)add(10*m,'PRECISION');
@@ -240,8 +240,14 @@ K[e.code]=1;
 if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
 if(!G){if(e.code=='Enter'&&!e.repeat)start();return}
 const pressed=id=>(SV.bind[id]||T(id)?.bind)===e.code;
-if(['KeyW','Space','ArrowUp'].includes(e.code)&&!e.repeat&&!G.dead&&G.gnd)G.jb=.14;
-if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.djump&&pressed('djump')&&!G.dj&&!(G.vy>0&&surf(G.px)-G.py<55)){G.dj=1;G.vy=-560;dust(G.px,G.py,5);G.pop.push({x:G.px,y:G.py-75,txt:'DOUBLE JUMP',l:.7});e.preventDefault()}
+const isJump=['KeyW','Space','ArrowUp'].includes(e.code);
+if(!e.repeat&&!G.dead&&(isJump||pressed('djump'))){
+ const nearGround=G.vy>0&&surf(G.px)-G.py<55;
+ if(!G.gnd&&!nearGround&&SV.tr.djump&&!G.dj){
+  G.dj=1;G.vy=-560;dust(G.px,G.py,5);
+  G.pop.push({x:G.px,y:G.py-75,txt:'DOUBLE JUMP',l:.7});e.preventDefault();
+ }else if(isJump)G.jb=.14; // on ground or close to landing: bhop buffer
+}
 if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.wall&&pressed('wall')){G.wk=.25;e.preventDefault()}
 if(!e.repeat&&!G.dead){
  if(SV.tr.wallrun&&pressed('wallrun')&&!G.gnd){G.wallT=.75;G.vy=-430;G.vx=Math.max(G.vx,230);add(10*cm(),'WALL RUN');}
@@ -252,7 +258,7 @@ if(!e.repeat&&!G.dead){
  if(SV.tr.gainer&&pressed('gainer')&&!G.gnd&&G.ledge){G.fc.back=Math.max(G.fc.back,1);G.rt-=TAU;add(45*cm(),'GAINER');}
  if(SV.tr.boost&&pressed('boost')&&G.flow>=5){G.boostT=1.2;G.flow=0;add(20*cm(),'FLOW BOOST');}
 }
-if(!e.repeat&&!G.gnd&&!G.dead){const hit=TRICKS.find(t=>t.bind&&(SV.bind[t.id]||t.bind)===e.code&&(t.r=='any'||t.r==SV.ride));if(hit&&SV.tr[hit.id]&&!G.an){G.an={id:hit.id,t:0,d:DUR[hit.id]||.5};e.preventDefault();}}
+if(!e.repeat&&!G.gnd&&!G.dead){const hit=TRICKS.find(t=>t.bind&&!t.u&&(SV.bind[t.id]||t.bind)===e.code&&(t.r=='any'||t.r==SV.ride));if(hit&&SV.tr[hit.id]&&!G.an){G.an={id:hit.id,t:0,d:DUR[hit.id]||.5};e.preventDefault();}}
 if(e.code=='KeyX')cash();if(!e.repeat&&!G.dead&&pressed('vault'))vault();
 if(!e.repeat&&!G.dead&&G.gnd&&SV.tr.quick&&pressed('quick')){
 const now=performance.now(),dir=(K.KeyD||K.ArrowRight)?1:-1;
