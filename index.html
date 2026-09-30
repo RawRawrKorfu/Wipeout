@@ -18,6 +18,7 @@ h1{margin:0 0 4px;font-size:28px;letter-spacing:2px;color:#ffd34d}
 .row i{width:22px;height:22px;border-radius:50%;border:2px solid #fff}
 .row button{min-width:96px;padding:7px 10px;border:0;border-radius:7px;background:#ffc300;color:#222;font-weight:800;cursor:pointer}
 .row button:disabled{background:#3a3f6b;color:#8b93c9;cursor:default}
+.slots{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.row .slots button{min-width:78px;padding:7px 6px;font-size:12px}
 #play{margin-top:10px;padding:13px;border:0;border-radius:10px;background:#2ecc71;color:#062;font-size:20px;font-weight:900;cursor:pointer}
 .help{margin:10px 0 0;color:#98a2d8;font-size:12px;line-height:1.5}
 </style></head><body>
@@ -28,11 +29,11 @@ h1{margin:0 0 4px;font-size:28px;letter-spacing:2px;color:#ffd34d}
 <div class="tabs"><button class="tab" data-t="tricks">Tricks</button><button class="tab" data-t="parkour">Parkour</button><button class="tab" data-t="tech">Tech</button><button class="tab" data-t="rides">Rides</button><button class="tab" data-t="skins">Skins</button><button class="tab" data-t="clothes">Clothes</button><button class="tab" data-t="controls">Controls</button></div>
 <div id="list"></div>
 <button id="play">▶ PLAY (Enter)</button>
-<p class="help"><b>D/A</b> run · <b>S</b> slide (under red blocks) · <b>W/Space</b> jump — press jump right as you land for a <b>BHOP</b> (coins + speed). Hold <b>E</b> and flick the mouse in the air: up = frontflip, down = backflip, right = spin, left = superman. Hold <b>Q</b> or <b>F</b> + flick for skateboard/scooter tricks. Parkour and Tech actions are rebindable in the Controls tab; defaults are shown there. Vault, wall kick, gainer, roll, double jump, wall run and Cat Leap are all independent bindings. Rooftop runs spawn between the street sections. Tech includes air dash, stomp, slide-fling, ramp-fling, mantle, Quickstep, Air Brake and Flow Boost. <b>Slide-hop:</b> jump, tap/hold <b>S</b> as you land, jump again (J S J S) to keep your bhop chain. The mouse is captured while playing (click the game if Esc released it). New tricks use separate keys by default (1–0); open Controls to rebind them. Cat Leap no longer uses V; its default is N, and you can change it in Controls. Land upright to bank tricks. <b>X</b> = cash out &amp; leave with your coins. <b>Fall = lose everything you carried.</b></p>
+<p class="help"><b>Every key is rebindable in the Controls tab</b> (defaults shown here). <b>D/A</b> run · <b>S</b> slide (under red blocks) · <b>W/Space</b> jump — press jump right as you land for a <b>BHOP</b> (coins + speed). Hold <b>E</b> and flick the mouse in the air: up = frontflip, down = backflip, right = spin, left = superman. Hold <b>Q</b> or <b>F</b> + flick for skateboard/scooter/freestyle tricks. <b>Double jump</b> (Parkour tab): press jump again in the air. <b>Roll:</b> tap Roll (or slide) just before landing from a drop. <b>Slide-hop:</b> jump, tap/hold slide as you land, jump again to keep your bhop chain. <b>X</b> = cash out (only while standing on the ground). The mouse is captured while playing (click the game if Esc released it). Land upright to bank tricks. <b>Fall = lose everything you carried.</b></p>
 </div></div>
 <script>
 const $=id=>document.getElementById(id),cv=$('c'),ctx=cv.getContext('2d'),TAU=Math.PI*2;
-let S=1,W=960;const H=540,GY=440;
+let S=1,W=960;const H=540,GY=440,VMAX=1000;
 function rs(){cv.width=innerWidth;cv.height=innerHeight;S=innerHeight/H;W=innerWidth/S}addEventListener('resize',rs);rs();
 const TRICKS=[
 {id:'front',n:'Frontflip',p:40,v:12,r:'any',k:'E',d:'U'},{id:'back',n:'Backflip',p:40,v:12,r:'any',k:'E',d:'D'},
@@ -48,20 +49,20 @@ const TRICKS=[
 {id:'decade',n:'Decade',p:260,v:36,r:'scooter',k:'F',d:'D'}];
 TRICKS.push({id:'aerial',n:'Aerial',p:150,v:26,r:'foot',k:'F',d:'R'},{id:'webster',n:'Webster',p:200,v:32,r:'foot',k:'F',d:'U'},
 {id:'butter',n:'Butterfly Twist',p:220,v:34,r:'foot',k:'F',d:'D'},{id:'cork',n:'Cork',p:300,v:42,r:'foot',k:'F',d:'L'},
-{id:'speed',n:'Speed Vault',p:70,r:'any',u:1,pk:1,info:'Press V near a low obstacle: hand-plant hop over it, keep your speed · 8 coins'},
-{id:'kong',n:'Kong Vault',p:110,r:'any',u:1,pk:1,info:'Press V near a tall wall/crate/roof edge: dive over it with a speed boost · 14 coins'},
-{id:'wall',n:'Wall Kick',p:160,r:'any',u:1,pk:1,bind:'KeyB',info:'Press jump in mid-air next to a wall to kick up it (chain to climb) · 6 coins'},
-{id:'gainer',n:'Gainer',p:200,v:45,r:'any',u:1,pk:1,bind:'KeyG',dbl:'back',info:'Backflip after walking off a ledge or roof edge · 45 coins (needs Backflip)'},
-{id:'roll',n:'Parkour Roll',p:90,r:'any',u:1,pk:1,bind:'KeyZ',info:'Hold S when landing from a big drop · 16 coins'},
+{id:'speed',n:'Speed Vault',p:70,r:'any',u:1,pk:1,info:'Press {vault} near a low obstacle: hand-plant hop over it, keep your speed · 8 coins'},
+{id:'kong',n:'Kong Vault',p:110,r:'any',u:1,pk:1,info:'Press {vault} near a tall wall/crate/roof edge: dive over it with a speed boost · 14 coins'},
+{id:'wall',n:'Wall Kick',p:160,r:'any',u:1,pk:1,bind:'KeyB',info:'Press {k} in mid-air next to a wall to kick up it (chain to climb) · 6 coins'},
+{id:'gainer',n:'Gainer',p:200,v:45,r:'any',u:1,pk:1,bind:'KeyG',dbl:'back',info:'Press {k} in mid-air after walking off a ledge or roof edge (or backflip after one): 45 coins (needs Backflip)'},
+{id:'roll',n:'Parkour Roll',p:90,r:'any',u:1,pk:1,bind:'KeyZ',info:'Tap {k} (or slide) just before landing from a big fall or roof drop · 16 coins'},
 {id:'prec',n:'Precision',p:70,r:'any',u:1,pk:1,info:'Land right on the edge of a rooftop after a jump · 10 coins'},
-{id:'dash',n:'Air Dash',p:90,r:'any',u:1,tech:1,bind:'ShiftLeft',info:'Shift in mid-air: burst of forward speed (once per jump) · 4 coins'},
-{id:'sfling',n:'Slide Fling',p:120,r:'any',u:1,tech:1,bind:'KeyU',info:'Slide for a moment, then jump: you get flung forward and up, big speed · 12 coins'},
-{id:'rfling',n:'Ramp Fling',p:140,r:'any',u:1,tech:1,bind:'KeyI',info:'Jump while on a ramp: launched much higher and faster than the ramp alone · 12 coins'},
-{id:'stomp',n:'Stomp',p:100,r:'any',u:1,tech:1,bind:'KeyO',info:'Press S in mid-air to slam down: instant landing, a little speed · 8 coins'},
-{id:'mantle',n:'Mantle',p:130,r:'any',u:1,tech:1,bind:'KeyM',info:'Hold jump when you hit a wall up to ~110 high: you pull up onto it instead of wiping out · 6 coins'},
+{id:'dash',n:'Air Dash',p:90,r:'any',u:1,tech:1,bind:'ShiftLeft',info:'Press {k} in mid-air: burst of forward speed (once per jump) · 4 coins'},
+{id:'sfling',n:'Slide Fling',p:120,r:'any',u:1,tech:1,bind:'KeyU',info:'Slide for a moment, then jump (or press {k}): you get flung forward and up, big speed · 12 coins'},
+{id:'rfling',n:'Ramp Fling',p:140,r:'any',u:1,tech:1,bind:'KeyI',info:'Jump (or press {k}) while on a ramp: launched much higher and faster than the ramp alone · 12 coins'},
+{id:'stomp',n:'Stomp',p:100,r:'any',u:1,tech:1,bind:'KeyO',info:'Press {k} in mid-air to slam down: instant landing, a little speed · 8 coins'},
+{id:'mantle',n:'Mantle',p:130,r:'any',u:1,tech:1,bind:'KeyM',info:'Hold {k} as you hit a wall up to ~110 high (or tap it right beside one): you pull up onto it instead of wiping out · 6 coins'},
 {id:'flow',n:'Flow',p:180,r:'any',u:1,tech:1,info:'Chain moves within 3.5s: each one adds +10% coins (up to +100%)'},
 {id:'hang',n:'Hang Time',p:110,r:'any',u:1,tech:1,info:'Land after more than 1s in the air for bonus coins'});
-TRICKS.unshift({id:'djump',n:'Double Jump',p:150,v:0,r:'any',u:1,pk:1,bind:'KeyC',info:'Press jump again in mid-air (close to the ground it stays a bhop buffer)'});
+TRICKS.unshift({id:'djump',n:'Double Jump',p:150,v:0,r:'any',u:1,pk:1,bind:'KeyC',info:'Press jump (or {k}) again in mid-air. Pressed early, it fires at the top of your jump. Close to the ground it stays a bhop buffer'});
 
 // Extra tricks
 TRICKS.push(
@@ -77,12 +78,12 @@ TRICKS.push(
  {id:'flash',n:'Flash Kick',p:320,v:46,r:'foot',bind:'Digit0'}
 );
 TRICKS.push(
- {id:'wallrun',n:'Wall Run',p:180,r:'any',u:1,pk:1,bind:'KeyR',info:'Hold W near a wall while airborne to run along it · 10 coins'},
- {id:'cat',n:'Cat Leap',p:220,r:'any',u:1,pk:1,bind:'KeyN',info:'Press N near a wall/ledge while airborne to spring away · 12 coins'},
- {id:'drop',n:'Drop Precision',p:150,r:'any',u:1,pk:1,info:'Land from a high rooftop drop cleanly · 20 coins'},
- {id:'quick',n:'Quickstep',p:170,r:'any',u:1,tech:1,bind:'KeyT',info:'Double-tap A/D quickly to burst sideways · 8 coins'},
- {id:'brake',n:'Air Brake',p:130,r:'any',u:1,tech:1,bind:'KeyY',info:'Tap A/D opposite your momentum in mid-air to control a landing · 6 coins'},
- {id:'boost',n:'Flow Boost',p:260,r:'any',u:1,tech:1,bind:'KeyP',info:'Reach 5 Flow moves to get a temporary speed burst · 20 coins'},
+ {id:'wallrun',n:'Wall Run',p:180,r:'any',u:1,pk:1,bind:'KeyR',info:'Press {k} next to a wall while airborne to run up it (once per jump) · 10 coins'},
+ {id:'cat',n:'Cat Leap',p:220,r:'any',u:1,pk:1,bind:'KeyN',info:'Press {k} near a wall/ledge while airborne to spring away · 12 coins'},
+ {id:'drop',n:'Drop Precision',p:150,r:'any',u:1,pk:1,info:'Land cleanly from a drop of 100+ (roof to street) · 20 coins'},
+ {id:'quick',n:'Quickstep',p:170,r:'any',u:1,tech:1,bind:'KeyT',info:'Double-tap a run key (or press {k}) on the ground to burst sideways · 8 coins · 1s cooldown'},
+ {id:'brake',n:'Air Brake',p:130,r:'any',u:1,tech:1,bind:'KeyY',info:'Press {k} in mid-air to bleed speed for a controlled landing (once per jump) · 6 coins'},
+ {id:'boost',n:'Flow Boost',p:260,r:'any',u:1,tech:1,bind:'KeyP',info:'Reach 5 Flow moves, then press {k} for a temporary speed burst (uses up your Flow) · 20 coins'},
  {id:'magnet',n:'Coin Magnet',p:240,r:'any',u:1,tech:1,info:'Nearby coins are pulled toward you while airborne · passive'}
 );
 const DUR={spin:.35,sup:.55,kick:.4,shove:.4,heel:.4,f360:.55,whip:.4,bar:.4,nohand:.5,hard:.45,aerial:.5,webster:.5,butter:.55,cork:.6,imp:.5,varial:.4,laser:.6,table:.5,turn:.5,decade:.5,fs540:.65,bs540:.65,cannon:.5,seat:.55,rocket:.55,mute:.45,indy:.45,barspin360:.65,wallspin:.55,flash:.6};
@@ -101,51 +102,70 @@ const CL=[{id:'cap',n:'Cap',p:80,b:'Bhop coins ×1.5'},{id:'shades',n:'Shades',p
 {id:'wrist',n:'Tech Wristband',p:1000,b:'Air Dash +20% burst'}];
 const T=id=>TRICKS.find(t=>t.id==id);
 let SV={bank:0,tr:{},rides:{foot:1},skins:{0:1},skin:0,cl:{},eq:{},ride:'foot'};
-const DEFAULT_BINDS={vault:'KeyV',wall:'KeyB',gainer:'KeyG',roll:'KeyZ',djump:'KeyC',wallrun:'KeyR',cat:'KeyN',quick:'KeyT',brake:'KeyY',dash:'ShiftLeft',sfling:'KeyU',rfling:'KeyI',stomp:'KeyO',mantle:'KeyM',boost:'KeyP',fs540:'Digit1',bs540:'Digit2',cannon:'Digit3',seat:'Digit4',rocket:'Digit5',mute:'Digit6',indy:'Digit7',barspin360:'Digit8',wallspin:'Digit9',flash:'Digit0'};
-try{const s=JSON.parse(localStorage.getItem('bhopSave'));if(s)SV=Object.assign(SV,s)}catch(e){}
-SV.bind=Object.assign({},DEFAULT_BINDS,SV.bind||{});
+
+/* ---------- KEY BINDINGS (every action has 2-3 slots) ---------- */
+const DEF={right:['KeyD','ArrowRight'],left:['KeyA','ArrowLeft'],slide:['KeyS','ArrowDown'],jump:['KeyW','Space','ArrowUp'],cash:['KeyX'],play:['Enter'],modE:['KeyE'],modQ:['KeyQ'],modF:['KeyF'],vault:['KeyV']};
+TRICKS.forEach(t=>{if(t.bind)DEF[t.id]=[t.bind]});
+const CORE=['right','left','slide','jump','cash'];
+const CORE_UI=[['right','Run forward','Hold to run · also air control'],['left','Run back / air control','Double-tap for Quickstep (if owned)'],['slide','Slide','Slide under red blocks · also buffers rolls'],['jump','Jump','Bhop, double jump, wall/ramp/slide jumps'],['cash','Cash out','Only works while standing on the ground'],['vault','Vault (Speed / Kong)','Near a crate, wall or roof edge'],['modE','Flip key','Hold + flick the mouse (default E)'],['modQ','Board / scooter key','Hold + flick the mouse (default Q)'],['modF','Freestyle key','Hold + flick the mouse (default F)'],['play','Start game (menu)','Same as clicking PLAY']];
+const nSlots=id=>Math.max(2,DEF[id].length);
+function normBinds(sv){const out={},seen={};
+for(const id in DEF){let a=sv&&sv[id];if(typeof a=='string')a=[a];if(!Array.isArray(a))a=DEF[id].slice();
+a=a.slice(0,nSlots(id)).map(c=>typeof c=='string'&&c&&!seen[c]?(seen[c]=1,c):null);while(a.length<nSlots(id))a.push(null);out[id]=a}
+return out}
+const isObj=o=>o&&typeof o=='object'&&!Array.isArray(o);
+try{const s=JSON.parse(localStorage.getItem('bhopSave'));if(isObj(s))SV=Object.assign(SV,s)}catch(e){}
+['tr','rides','skins','cl','eq'].forEach(k=>{if(!isObj(SV[k]))SV[k]={}});
+SV.rides.foot=1;SV.skins[0]=1;
+SV.bank=Number.isFinite(SV.bank)&&SV.bank>0?Math.floor(SV.bank):0;
+if(!RIDES[SV.ride]||!SV.rides[SV.ride])SV.ride='foot';
+if(!SKINS[SV.skin]||!SV.skins[SV.skin])SV.skin=0;
+SV.bind=normBinds(SV.bind);
 const save=()=>{try{localStorage.setItem('bhopSave',JSON.stringify(SV))}catch(e){}};
-const cm=()=>1+.05*(Object.keys(SV.skins).length-1)+.05*Object.keys(SV.cl).length;
+const cm=()=>1+.05*(Object.keys(SV.skins).length-1)+.05*Object.values(SV.eq).filter(Boolean).length;
+const held=id=>SV.bind[id].some(c=>c&&K[c]),is=(id,c)=>SV.bind[id].includes(c);
+const nameOf=id=>(CORE_UI.find(r=>r[0]==id)||[])[1]||(T(id)||{}).n||id;
 
 /* ---------- SHOP ---------- */
 let tab='tricks';const CN={U:'up',D:'down',L:'left',R:'right'};let waitingBind=null;
 function keyName(code){if(!code)return'Unbound';return ({Space:'Space',ShiftLeft:'Left Shift',ShiftRight:'Right Shift',ControlLeft:'Left Ctrl',ControlRight:'Right Ctrl',AltLeft:'Left Alt',AltRight:'Right Alt',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',Escape:'Esc'})[code]||code.replace(/^Key/,'').replace(/^Digit/,'');}
+const keys=id=>(SV.bind[id]||[]).filter(Boolean).map(keyName).join(' / ')||'Unbound';
 function shop(){
 $('bank').textContent=SV.bank;$('mult').textContent=cm().toFixed(2);$('rideN').textContent=RIDES[SV.ride].n;
 document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t==tab));
 const row=(n,d,l,a,dis,sw)=>`<div class="row">${sw?`<i style="background:${sw}"></i>`:''}<div><b>${n}</b><small>${d}</small></div><button data-a="${a}" ${dis?'disabled':''}>${l}</button></div>`;
 let h='';
 if(tab=='tricks'||tab=='parkour'||tab=='tech')TRICKS.filter(t=>tab=='parkour'?t.pk:tab=='tech'?t.tech:!t.pk&&!t.tech).forEach(t=>{const o=SV.tr[t.id],need=t.dbl&&!SV.tr[t.dbl];
-const trigger=t.bind?'Press '+keyName(SV.bind[t.id]||t.bind)+(t.pk||t.tech?' to activate':' while airborne'):(t.dbl?'Flick '+(t.dbl=='front'?'up':'down')+' twice in one jump':t.k+' + flick '+CN[t.d]);
-h+=row(t.n,t.u?t.info:trigger+' · '+t.v+' base coins'+(t.r!='any'?' · '+RIDES[t.r].n+' only':''),o?'Owned ✓':need?'Needs '+T(t.dbl).n:t.p+' 🪙','t:'+t.id,o||need||SV.bank<t.p)});
+const trigger=t.bind?'Press '+keys(t.id)+(t.pk||t.tech?' to activate':' while airborne'):(t.dbl?'Flick '+(t.dbl=='front'?'up':'down')+' twice in one jump':keys('mod'+t.k)+' + flick '+CN[t.d]);
+h+=row(t.n,t.u?t.info.replace('{k}',keys(t.id)).replace('{vault}',keys('vault')):trigger+' · '+t.v+' base coins'+(t.r!='any'?' · '+RIDES[t.r].n+' only':''),o?'Owned ✓':need?'Needs '+T(t.dbl).n:t.p+' 🪙','t:'+t.id,o||need||SV.bank<t.p)});
 if(tab=='controls'){
- h+='<div class="row"><div><b>Rebind Parkour & Tech</b><small>Every active Parkour/Tech ability can be rebound. Click Bind, then press any key. Changes are saved automatically.</small></div></div>';
- h+=row('Vault (Speed / Kong)','Current key: <b>'+keyName(SV.bind.vault)+'</b>',waitingBind==='vault'?'Press a key…':'Bind','b:vault',waitingBind&&waitingBind!=='vault');
- TRICKS.filter(t=>(t.pk||t.tech)&&t.bind).forEach(t=>{h+=row(t.n,'Current key: <b>'+keyName(SV.bind[t.id]||t.bind)+'</b>',waitingBind===t.id?'Press a key…':'Bind','b:'+t.id,waitingBind&&waitingBind!==t.id)});
- h+='<div class="row"><div><b>Automatic Parkour / Tech</b><small>Precision, Drop Precision, Flow and Hang Time trigger automatically when their conditions are met.</small></div></div>';
- h+='<div class="row"><div><b>Extra Tricks</b><small>These are also fully rebindable below.</small></div></div>';
- TRICKS.filter(t=>t.bind&&!t.pk&&!t.tech).forEach(t=>{h+=row(t.n,'Current key: <b>'+keyName(SV.bind[t.id]||t.bind)+'</b>',waitingBind===t.id?'Press a key…':'Bind','b:'+t.id,waitingBind&&waitingBind!==t.id)});
- h+='<div class="row"><div><b>Core controls</b><small>D/A or Right/Left = run · S/Down = slide · W/Space/Up = jump · Vault key = Speed/Kong Vault · X = cash out. Classic E/Q/F flick tricks remain gesture-based.</small></div></div>';
+ const brow=(id,n,d)=>`<div class="row"><div><b>${n}</b><small>${d}</small></div><span class="slots">${SV.bind[id].map((c,i)=>`<button data-a="b:${id}:${i}">${waitingBind&&waitingBind.id==id&&waitingBind.i==i?'Press a key…':keyName(c)}</button>`).join('')}</span></div>`;
+ h+='<div class="row"><div><b>Rebind everything</b><small>Click a slot, then press a key. Esc cancels, Backspace/Delete clears the slot. Every action has 2-3 slots. Saved automatically.</small></div><span class="slots"><button data-a="reset:all">Reset all</button></span></div>';
+ h+='<div class="row"><div><b>Core controls</b></div></div>';
+ CORE_UI.forEach(r=>h+=brow(r[0],r[1],r[2]));
+ h+='<div class="row"><div><b>Parkour, Tech and extra tricks</b><small>Precision, Drop Precision, Flow, Hang Time and Coin Magnet trigger automatically.</small></div></div>';
+ TRICKS.filter(t=>t.bind).forEach(t=>h+=brow(t.id,t.n,t.pk?'Parkour':t.tech?'Tech':'Extra trick (press in the air)'));
 }
 if(tab=='rides')Object.entries(RIDES).forEach(([k,r])=>{const o=SV.rides[k];h+=row(r.n,r.d,SV.ride==k?'Riding':o?'Ride':r.p+' 🪙','r:'+k,SV.ride==k||(!o&&SV.bank<r.p))});
 if(tab=='skins')SKINS.forEach((s,i)=>{const o=SV.skins[i];h+=row(s.n,'+5% coins on everything',SV.skin==i?'Wearing':o?'Wear':s.p+' 🪙','s:'+i,SV.skin==i||(!o&&SV.bank<s.p),s.c)});
-if(tab=='clothes')CL.forEach(c=>{const o=SV.cl[c.id];h+=row(c.n,c.b+' · +5% coins',o?(SV.eq[c.id]?'Unequip':'Equip'):c.p+' 🪙','c:'+c.id,!o&&SV.bank<c.p)});
+if(tab=='clothes')CL.forEach(c=>{const o=SV.cl[c.id];h+=row(c.n,c.b+' · +5% coins while equipped',o?(SV.eq[c.id]?'Unequip':'Equip'):c.p+' 🪙','c:'+c.id,!o&&SV.bank<c.p)});
 $('list').innerHTML=h}
-$('list').onclick=e=>{const b=e.target.closest('button');if(!b)return;b.blur();const[k,v]=b.dataset.a.split(':'),pay=p=>SV.bank>=p&&(SV.bank-=p,1);
-if(k=='b'){waitingBind=v;shop();return}
+$('list').onclick=e=>{const b=e.target.closest('button');if(!b)return;b.blur();const[k,v,sl]=b.dataset.a.split(':'),pay=p=>SV.bank>=p&&(SV.bank-=p,1);
+if(k=='b'){waitingBind={id:v,i:+sl};$('msg').textContent='';shop();return}
+if(k=='reset'){SV.bind=normBinds(null);waitingBind=null;save();shop();return}
 if(k=='t'){if(pay(T(v).p))SV.tr[v]=1}
 else if(k=='r'){if(SV.rides[v]||pay(RIDES[v].p)){SV.rides[v]=1;SV.ride=v}}
 else if(k=='s'){if(SV.skins[v]||pay(SKINS[v].p)){SV.skins[v]=1;SV.skin=+v}}
 else{const c=CL.find(c=>c.id==v);if(SV.cl[v])SV.eq[v]=!SV.eq[v];else if(pay(c.p)){SV.cl[v]=1;SV.eq[v]=1}}
 save();shop()};
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.t;b.blur();shop()});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.t;waitingBind=null;b.blur();shop()});
 function menu(msg){G=null;try{document.exitPointerLock()}catch(e){}$('menu').style.display='flex';$('msg').textContent=msg||'';shop()}
 $('play').onclick=e=>{e.target.blur();start()};
 
 /* ---------- GAME ---------- */
 let G=null,K={},mb=[];
 function start(){$('menu').style.display='none';try{const r=cv.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(e){}
-G={px:200,py:GY,vx:0,vy:0,ppy:GY,gnd:true,gT:1,jb:0,slide:false,rot:0,rt:0,fc:{front:0,back:0},an:null,at:[],chain:0,coins:0,lost:0,pop:[],pt:[],ob:[],cn:[],gx:700,cam:200-W*.3,t:0,dead:false,dt:0,on:null,cool:0,dj:0,sT:0,ad:0,st:0,slT:0,flow:0,flowT:0,vlt:0,wk:0,vk:null,airT:0,ledge:0,rollT:0,wallT:0,catT:0,quickT:0,lastDir:0,quickLast:0,boostT:0,brakeT:0};
+G={px:200,py:GY,vx:0,vy:0,ppy:GY,gnd:true,gT:1,jb:0,slide:false,rot:0,rt:0,fc:{front:0,back:0},an:null,at:[],chain:0,coins:0,lost:0,pop:[],pt:[],ob:[],cn:[],gx:700,cam:200-W*.3,t:0,dead:false,dt:0,on:null,cool:0,dj:0,sT:0,ad:0,st:0,slT:0,flow:0,flowT:0,vlt:0,wk:0,vk:null,airT:0,ledge:0,rollT:0,wallT:0,catT:0,lastDir:0,quickLast:0,boostT:0,brakeT:0,djq:0,wr:0,br:0,quickCD:0,rollBuf:0,lockT:0,apex:GY,takeoffY:GY};
 for(let i=0;i<5;i++)G.cn.push({x:420+i*36,y:GY-28,g:0})}
 const surf=x=>{let y=GY;for(const o of G.ob){if(x<o.x||x>o.x+o.w)continue;if(o.t=='p')return 1e9;if(o.t=='r')y=Math.min(y,GY-o.h*(x-o.x)/o.w);if(o.t=='c'||o.t=='h')y=Math.min(y,GY-o.h)}return y};
 const rampAt=x=>G.ob.find(o=>o.t=='r'&&x>=o.x&&x<=o.x+o.w);
@@ -163,20 +183,34 @@ const s=p.gx,n=2+(Math.random()*4|0);for(let i=0;i<n;i++)p.cn.push({x:s+80+i*36,
 function add(n,txt){if(txt&&SV.tr.flow){n*=1+.1*Math.min(G.flow,10);G.flow++;G.flowT=3.5+(SV.eq.bandana?1.5:0)}n=Math.max(1,Math.round(n));G.coins+=n;G.pop.push({x:G.px,y:G.py-75,txt:'+'+n+(txt?' '+txt:''),l:1.3})}
 function dust(x,y,n){for(let i=0;i<n;i++)G.pt.push({x,y,vx:(Math.random()-.5)*160,vy:-Math.random()*120,l:.5})}
 function crash(){const p=G;if(p.dead)return;p.dead=true;p.lost=p.coins;p.coins=0;p.dt=0;p.vy=-380;p.vx=-Math.abs(p.vx)*.25;dust(p.px,p.py,18)}
-function cash(){if(!G||G.dead)return;const c=Math.round(G.coins*(SV.eq.chain?1.1:1));SV.bank+=c;save();menu('Cashed out with '+c+' coins! 🪙')}
-function land(s){const p=G;p.py=s;p.vy=0;p.gnd=true;p.gT=0;p.dj=0;p.on=rampAt(p.px);dust(p.px,p.py,6);
+// Cash out only while standing on solid ground (mid-air / falling into a pit no longer banks your coins)
+function cash(){if(!G||G.dead)return;if(!G.gnd){G.pop.push({x:G.px,y:G.py-75,txt:'Land to cash out',l:.8});return}const c=Math.round(G.coins*(SV.eq.chain?1.1:1));SV.bank+=c;save();menu('Cashed out with '+c+' coins! 🪙')}
+
+/* shared helpers used by both the keyboard handler and update() */
+const maxSpd=()=>310*RIDES[SV.ride].sp*(1+.07*Math.min(G.chain,12))*(SV.eq.hoodie?1.08:1)*(SV.eq.jacket?1.05:1);
+const nearGround=()=>G.vy>0&&surf(G.px)-G.py<55;
+const wallNear=r=>G.ob.find(o=>(o.t=='c'||o.t=='h')&&o.x-G.px<r&&o.x-G.px>-8&&G.py>GY-o.h+10&&G.py<GY-o.h+150);
+function landReset(){const p=G;p.st=0;p.ad=0;p.dj=0;p.djq=0;p.wr=0;p.br=0;p.airT=0;p.ledge=0;p.rot=p.rt=0;p.fc={front:0,back:0};p.at=[];p.an=null;p.apex=p.takeoffY=p.py}
+function doubleJump(){const p=G;p.dj=1;p.djq=0;p.vy=-600;dust(p.px,p.py,5);p.pop.push({x:p.px,y:p.py-75,txt:'DOUBLE JUMP',l:.7})}
+function fling(k){const p=G;p.gnd=false;p.ledge=0;
+if(k=='s'){p.vy=-720;p.vx=Math.max(p.vx,maxSpd())*1.45;add(12*cm(),'SLIDE FLING')}
+else{p.vy=-Math.min(1000,860+p.vx*.2);p.vx*=1.2;add(12*cm(),'RAMP FLING')}dust(p.px,p.py,6)}
+function mantleTo(o){const p=G;p.py=GY-o.h;p.px=o.x+3;p.vy=0;p.vx*=.8;p.gnd=true;p.gT=0;p.vlt=.2;p.on=null;landReset();add(6*cm(),'MANTLE')}
+function quickstep(dir){const p=G;if(p.quickCD>0||!p.gnd)return;p.quickCD=1;p.vx=dir>0?Math.max(Math.abs(p.vx)+140,280):-260;add(8*cm(),'QUICKSTEP');dust(p.px,p.py,8)}
+
+function land(s){const p=G,drop=s-p.takeoffY,fall=s-p.apex;p.py=s;p.vy=0;p.gnd=true;p.gT=0;p.dj=0;p.on=rampAt(p.px);dust(p.px,p.py,6);
 if(Math.abs(p.rt-p.rot)>.9)return crash();
 const L=[];for(const f of['front','back']){const c=p.fc[f];if(c==1)L.push(f=='back'&&p.ledge&&SV.tr.gainer?T('gainer'):T(f));else if(c>=2)L.push(T('d'+f))}
 p.at.forEach(id=>L.push(T(id)));
 if(L.length){const v=L.reduce((a,t)=>a+(t.v||0),0)*(1+.25*(L.length-1))*RIDES[SV.ride].m*cm()*(SV.eq.shades?1.15:1)*(SV.eq.backpack?1.1:1)*(SV.eq.jacket?1.1:1);add(v,L.map(t=>t.n).join(' + '))}
 const m=RIDES[SV.ride].m*cm();
-if(p.airT>.85&&(K[SV.bind.roll]||K.KeyS||K.ArrowDown)&&SV.tr.roll){add(16*m*(SV.eq.kneepads?1.25:1),'ROLL');p.rollT=.4}
-if(p.airT>1.25&&SV.tr.drop){add(20*m*(SV.eq.kneepads?1.25:1),'DROP PRECISION')}
-if(p.flow>=5&&SV.tr.boost){p.boostT=2.5;p.vx+=90;add(20*m*(SV.eq.jacket?1.1:1),'FLOW BOOST')}
+// Roll: tap roll/slide shortly before landing (or hold it) after a real fall or roof drop
+if(SV.tr.roll&&(fall>=130||drop>=80)&&(p.rollBuf>0||held('roll')||held('slide'))){add(16*m*(SV.eq.kneepads?1.25:1),'ROLL');p.rollT=.4;p.rollBuf=0}
+if(SV.tr.drop&&drop>=100){add(20*m*(SV.eq.kneepads?1.25:1),'DROP PRECISION')}
 const rf=p.ob.find(o=>o.t=='h'&&p.px>=o.x&&p.px-o.x<30);if(rf&&p.airT>.35&&SV.tr.prec)add(10*m,'PRECISION');
 if(SV.tr.hang&&p.airT>1)add((p.airT-.8)*10*m*(SV.eq.kneepads?1.25:1),'HANG TIME');
-if(p.st){add(8*m,'STOMP');p.vx+=25;dust(p.px,p.py,12)}p.st=0;p.ad=0;
-p.airT=0;p.ledge=0;p.rot=p.rt=0;p.fc={front:0,back:0};p.at=[];p.an=null}
+if(p.st){add(8*m,'STOMP');p.vx+=25;dust(p.px,p.py,12)}
+landReset()}
 function vault(){const p=G;if(p.vlt>0)return;
 for(const o of p.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-p.px,rel=p.py-(GY-o.h);if(d<-6||d>95||rel<12)continue;
 const kg=rel>50&&SV.tr.kong,sp=!kg&&rel<=65&&SV.tr.speed;if(!kg&&!sp)continue;
@@ -187,17 +221,20 @@ const t=TRICKS.find(t=>t.k==k&&t.d==d&&(t.r=='any'||t.r==SV.ride));if(!t)return;
 if(!SV.tr[t.id]){p.pop.push({x:p.px,y:p.py-75,txt:'🔒 '+t.n+' (buy in shop)',l:1});return}
 if(t.id=='front'||t.id=='back'){const dir=t.id=='front'?1:-1;if(p.rt!=p.rot&&Math.sign(p.rt-p.rot)!=dir)return;
 if(p.fc[t.id]>=1&&(!SV.tr['d'+t.id]||p.fc[t.id]>=2))return;p.fc[t.id]++;p.rt+=dir*TAU}
-else if(!p.an)p.an={id:t.id,t:0,d:DUR[t.id]||.4}}
+else if(!p.an&&!p.at.includes(t.id))p.an={id:t.id,t:0,d:DUR[t.id]||.4}}
 function update(dt){const p=G;
 if(p.dead){p.dt+=dt;p.vy+=1900*dt;p.py+=p.vy*dt;p.px+=p.vx*dt;p.rot+=9*dt;if(p.dt>1.4)menu('Wiped out! You lost '+p.lost+' coins. 💥');return}
-p.t+=dt;p.jb=Math.max(0,p.jb-dt);p.cool-=dt;p.vlt-=dt;p.wk-=dt;p.rollT-=dt;p.wallT=Math.max(0,p.wallT-dt);p.catT=Math.max(0,p.catT-dt);p.boostT=Math.max(0,p.boostT-dt);p.brakeT=Math.max(0,p.brakeT-dt);p.slT=p.slide?p.slT+dt:0;if(p.flowT>0){p.flowT-=dt;if(p.flowT<=0)p.flow=0}if(p.vk){p.vk.t+=dt;if(p.vk.t>p.vk.d)p.vk=null}
-const R=RIDES[SV.ride],maxS=310*R.sp*(1+.07*Math.min(p.chain,12))*(SV.eq.hoodie?1.08:1)*(SV.eq.jacket?1.05:1),right=K.KeyD||K.ArrowRight,left=K.KeyA||K.ArrowLeft;
-p.slide=!!(p.gnd&&(K.KeyS||K.ArrowDown));p.sT=(K.KeyS||K.ArrowDown)?.35:Math.max(0,p.sT-dt);const win=(p.sT>0?.35:.1)+(SV.eq.shoes?.05:0)+(SV.eq.cargo?.03:0);
+p.t+=dt;p.jb=Math.max(0,p.jb-dt);p.cool-=dt;p.vlt-=dt;p.wk-=dt;p.rollT-=dt;p.wallT=Math.max(0,p.wallT-dt);p.catT=Math.max(0,p.catT-dt);p.boostT=Math.max(0,p.boostT-dt);p.brakeT=Math.max(0,p.brakeT-dt);p.quickCD-=dt;p.rollBuf-=dt;p.lockT-=dt;p.slT=p.slide?p.slT+dt:0;if(p.flowT>0){p.flowT-=dt;if(p.flowT<=0)p.flow=0}if(p.vk){p.vk.t+=dt;if(p.vk.t>p.vk.d)p.vk=null}
+const R=RIDES[SV.ride],maxS=maxSpd(),right=held('right'),left=held('left'),sld=held('slide');
+p.slide=!!(p.gnd&&sld);p.sT=sld?.35:Math.max(0,p.sT-dt);const win=(p.sT>0?.35:.1)+(SV.eq.shoes?.05:0)+(SV.eq.cargo?.03:0);
 const fr=R.sp>1.2?.5:R.sp>1.1?.7:1;
 if(p.gnd||right||left){const tgt=right?maxS:left?-120:0;
 const acc=p.gnd?(p.slide?(right?400*(SV.eq.cargo?1.15:1):90*fr):(right||left?1300:700*fr)):350;
 if(right&&p.vx>maxS)p.vx-=150*dt;else if(p.vx<tgt)p.vx=Math.min(tgt,p.vx+acc*dt);else if(p.vx>tgt&&!right)p.vx=Math.max(tgt,p.vx-acc*dt)}
 if(p.boostT>0)p.vx=Math.min(maxS+120,p.vx+260*dt);
+p.vx=Math.max(-600,Math.min(VMAX,p.vx)); // global speed cap: stacked boosts can no longer tunnel through walls
+// queued double jump (pressed while still rising): fires once you're past the top of the jump
+if(p.djq>0){p.djq-=dt;if(!p.gnd&&!p.dj&&p.vy>-250){if(!nearGround())doubleJump();else p.djq=0}}
 p.px+=p.vx*dt;if(p.px<p.cam+40){p.px=p.cam+40;p.vx=Math.max(p.vx,0)}
 p.cam=Math.max(p.cam,p.px-W*.3);
 if(p.wk>0&&!p.gnd&&SV.tr.wall)for(const o of p.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-p.px;
@@ -205,18 +242,18 @@ if(d<38&&d>-8&&p.py>GY-o.h+10&&p.py<GY-o.h+150){p.vy=-720;p.vx=Math.max(p.vx,240
 const top=p.py-(p.slide?24:52);
 for(const o of p.ob){if(p.px+9<o.x||p.px-9>o.x+o.w)continue;
 if((o.t=='c'||o.t=='h')&&p.vlt<=0&&p.py>GY-o.h+14){const rel=p.py-(GY-o.h);
-if(SV.tr.mantle&&rel<=110&&K[SV.bind.mantle]){p.py=GY-o.h;p.px=o.x+3;p.vy=0;p.vx*=.8;p.gnd=true;p.gT=0;p.vlt=.2;p.on=null;p.st=0;p.airT=0;p.rot=p.rt=0;p.fc={front:0,back:0};p.at=[];p.an=null;add(6*cm(),'MANTLE');continue}
+if(SV.tr.mantle&&rel<=110&&held('mantle')){mantleTo(o);continue}
 return crash()}
 if(o.t=='b'&&p.py>GY-72&&top<GY-34)return crash()}
 const s=surf(p.px);
 if(p.gnd&&p.jb>0){p.jb=0;const bh=p.gT<win;p.gnd=false;p.ledge=0;p.vy=-640;if(bh){p.chain++;p.vx+=30;add((2+Math.min(p.chain,6))*(SV.eq.cap?1.5:1),(p.gT>.1?'SLIDE-HOP':'BHOP')+' x'+p.chain)}
-if(SV.tr.sfling&&p.slide&&p.slT>.25){p.vy=-720;p.vx=Math.max(p.vx,maxS)*1.45;add(12*cm(),'SLIDE FLING')}
-else if(SV.tr.rfling&&p.on&&p.on.t=='r'){p.vy=-Math.min(1000,860+p.vx*.2);p.vx*=1.2;add(12*cm(),'RAMP FLING')}dust(p.px,p.py,4)}
+if(SV.tr.sfling&&p.slide&&p.slT>.25)fling('s');
+else if(SV.tr.rfling&&p.on&&p.on.t=='r')fling('r');dust(p.px,p.py,4)}
 if(p.gnd){p.gT+=p.slide?dt*.3:dt;if(p.gT>win+.02)p.chain=0;
 if(s>p.py+6){p.gnd=false;const o=p.on;p.ledge=!(o&&o.t=='r');p.vy=o&&o.t=='r'?Math.max(-980,Math.min(-700,-(p.vx*o.h/o.w)-560)):0}
-else{p.py=s;p.on=rampAt(p.px)}
+else{p.py=s;p.on=rampAt(p.px);p.takeoffY=p.apex=p.py}
 if(p.slide&&Math.random()<.5)dust(p.px-10,p.py,1)}
-else{p.ppy=p.py;p.airT+=dt;p.vy+=(p.wallT>0?450:(SV.eq.cape?1650:1900))*dt;p.py+=p.vy*dt;
+else{p.ppy=p.py;p.airT+=dt;p.vy+=(p.wallT>0?450:(SV.eq.cape?1650:1900))*dt;p.py+=p.vy*dt;if(p.py<p.apex)p.apex=p.py;
 if(p.vy>=0&&p.py>=s&&p.ppy<=s+6&&s<1e9)land(s);
 else if(s<1e9&&p.py>s+14)return crash();
 if(p.py>GY+150)return crash();
@@ -234,49 +271,54 @@ gen()}
 setInterval(()=>{if(G&&G.dead){G.pop.forEach(o=>o.l-=.016);G.pt.forEach(o=>{o.l-=.016;o.x+=o.vx*.016;o.y+=o.vy*.016;o.vy+=6})}},16);
 
 /* ---------- INPUT ---------- */
-addEventListener('keydown',e=>{
-if(waitingBind){e.preventDefault();if(e.code!='Escape'){const used=Object.entries(SV.bind).find(([id,c])=>c===e.code&&id!==waitingBind);if(used){$('msg').textContent='That key is already bound to '+(T(used[0])?T(used[0]).n:used[0]);return}SV.bind[waitingBind]=e.code;save();}waitingBind=null;shop();return}
-K[e.code]=1;
-if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
-if(!G){if(e.code=='Enter'&&!e.repeat)start();return}
-const pressed=id=>(SV.bind[id]||T(id)?.bind)===e.code;
-const isJump=['KeyW','Space','ArrowUp'].includes(e.code);
-if(!e.repeat&&!G.dead&&(isJump||pressed('djump'))){
- const nearGround=G.vy>0&&surf(G.px)-G.py<55;
- if(!G.gnd&&!nearGround&&SV.tr.djump&&!G.dj){
-  G.dj=1;G.vy=-560;dust(G.px,G.py,5);
-  G.pop.push({x:G.px,y:G.py-75,txt:'DOUBLE JUMP',l:.7});e.preventDefault();
- }else if(isJump)G.jb=.14; // on ground or close to landing: bhop buffer
+addEventListener('keydown',e=>{const c=e.code;
+if(waitingBind){e.preventDefault();const{id,i}=waitingBind;
+ if(c=='Escape'){waitingBind=null;$('msg').textContent='';shop();return}
+ if(c=='Backspace'||c=='Delete'){
+  if(CORE.includes(id)&&SV.bind[id][i]&&SV.bind[id].filter(Boolean).length<2){$('msg').textContent='Keep at least one key on '+nameOf(id);return}
+  SV.bind[id][i]=null}
+ else{const u=Object.keys(SV.bind).find(k=>SV.bind[k].some((x,j)=>x===c&&!(k==id&&j==i)));
+  if(u){$('msg').textContent='That key is already used by: '+nameOf(u);return}
+  SV.bind[id][i]=c}
+ $('msg').textContent='';save();waitingBind=null;shop();return}
+K[c]=1;
+if(G&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&Object.values(SV.bind).some(a=>a.includes(c)))e.preventDefault();
+if(!G){if(is('play',c)&&!e.repeat)start();return}
+if(['modE','modQ','modF'].some(a=>is(a,c)))mb=[];
+if(e.repeat||G.dead)return;
+if(is('cash',c)){cash();return}
+// jump / double jump (pressed early while rising = queued until the top of the jump)
+const jmp=is('jump',c),djk=is('djump',c);
+if(jmp||djk){
+ if(!G.gnd&&SV.tr.djump&&!G.dj&&!nearGround()){if(G.vy>-250)doubleJump();else{G.djq=.3;if(jmp)G.jb=.14}}
+ else if(jmp)G.jb=.14; // on ground or close to landing: bhop buffer
 }
-if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.wall&&pressed('wall')){G.wk=.25;e.preventDefault()}
-if(!e.repeat&&!G.dead){
- if(SV.tr.wallrun&&pressed('wallrun')&&!G.gnd){G.wallT=.75;G.vy=-430;G.vx=Math.max(G.vx,230);add(10*cm(),'WALL RUN');}
- if(SV.tr.cat&&pressed('cat')&&!G.gnd&&G.catT<=0){for(const o of G.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-G.px,top=GY-o.h;if(Math.abs(d)<55&&G.py>top-30&&G.py<top+130){G.catT=.8;G.vy=-610;G.vx=(d>0?-1:1)*Math.max(260,Math.abs(G.vx)+60);add(12*cm(),'CAT LEAP');break}}}
- if(SV.tr.sfling&&pressed('sfling')&&G.gnd&&G.slide&&G.slT>.25){G.vy=-720;G.vx=Math.max(G.vx,310)*1.45;add(12*cm(),'SLIDE FLING');}
- if(SV.tr.rfling&&pressed('rfling')&&G.gnd&&G.on&&G.on.t=='r'){G.vy=-Math.min(1000,860+G.vx*.2);G.vx*=1.2;add(12*cm(),'RAMP FLING');}
- if(SV.tr.mantle&&pressed('mantle')&&!G.gnd){for(const o of G.ob){if((o.t=='c'||o.t=='h')&&G.px+9>=o.x&&G.px-9<=o.x+o.w){const rel=G.py-(GY-o.h);if(rel<=110){G.py=GY-o.h;G.px=o.x+3;G.vy=0;G.vx*=.8;G.gnd=true;G.gT=0;G.vlt=.2;G.on=null;G.airT=0;G.rot=G.rt=0;G.fc={front:0,back:0};G.at=[];G.an=null;add(6*cm(),'MANTLE');break}}}}
- if(SV.tr.gainer&&pressed('gainer')&&!G.gnd&&G.ledge){G.fc.back=Math.max(G.fc.back,1);G.rt-=TAU;add(45*cm(),'GAINER');}
- if(SV.tr.boost&&pressed('boost')&&G.flow>=5){G.boostT=1.2;G.flow=0;add(20*cm(),'FLOW BOOST');}
-}
-if(!e.repeat&&!G.gnd&&!G.dead){const hit=TRICKS.find(t=>t.bind&&!t.u&&(SV.bind[t.id]||t.bind)===e.code&&(t.r=='any'||t.r==SV.ride));if(hit&&SV.tr[hit.id]&&!G.an){G.an={id:hit.id,t:0,d:DUR[hit.id]||.5};e.preventDefault();}}
-if(e.code=='KeyX')cash();if(!e.repeat&&!G.dead&&pressed('vault'))vault();
-if(!e.repeat&&!G.dead&&G.gnd&&SV.tr.quick&&pressed('quick')){
-const now=performance.now(),dir=(K.KeyD||K.ArrowRight)?1:-1;
-if(G.lastDir==dir&&now-G.quickLast<260){G.vx=Math.max(Math.abs(G.vx)+140,280)*dir;G.quickT=.28;add(8*cm(),'QUICKSTEP');dust(G.px,G.py,8);G.quickLast=0}
-else{G.lastDir=dir;G.quickLast=now}}
-if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.brake&&!G.brakeT&&pressed('brake')){
-const dir=G.vx>=0?-1:1;
-if((dir>0&&G.vx<0)||(dir<0&&G.vx>0)){G.vx*=.55;G.brakeT=.18;add(6*cm()*(SV.eq.jacket?1.1:1),'AIR BRAKE');dust(G.px,G.py,5)}
-}
-if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.dash&&!G.ad&&pressed('dash')){G.ad=1;G.vx=Math.max(G.vx,300)+340*(SV.eq.wrist?1.2:1);G.vy*=.5;dust(G.px,G.py,8);add(4*cm()*(SV.eq.jacket?1.1:1),'AIR DASH')}
-if(!e.repeat&&!G.dead&&!G.gnd&&SV.tr.stomp&&!G.st&&pressed('stomp')){G.st=1;G.vy=Math.max(G.vy,950);G.vx*=.9}
-if(e.code=='KeyE'||e.code=='KeyQ'||e.code=='KeyF')mb=[]});
+if(!G.gnd&&(is('roll',c)||is('slide',c)))G.rollBuf=.3; // roll buffer
+if(!G.gnd&&SV.tr.wall&&is('wall',c))G.wk=.25;
+if(SV.tr.wallrun&&is('wallrun',c)&&!G.gnd&&!G.wr&&wallNear(60)){G.wr=1;G.wallT=.75;G.vy=-430;G.vx=Math.max(G.vx,230);add(10*cm(),'WALL RUN')}
+if(SV.tr.cat&&is('cat',c)&&!G.gnd&&G.catT<=0){for(const o of G.ob){if(o.t!='c'&&o.t!='h')continue;const d=o.x-G.px,tp=GY-o.h;if(Math.abs(d)<55&&G.py>tp-30&&G.py<tp+130){G.catT=.8;G.vy=-610;G.vx=(d>0?-1:1)*Math.max(260,Math.abs(G.vx)+60);add(12*cm(),'CAT LEAP');break}}}
+if(SV.tr.sfling&&is('sfling',c)&&G.gnd&&G.slide&&G.slT>.25)fling('s');
+if(SV.tr.rfling&&is('rfling',c)&&G.gnd&&G.on&&G.on.t=='r')fling('r');
+if(SV.tr.mantle&&is('mantle',c)&&!G.gnd){const o=G.ob.find(o=>{const rel=G.py-(GY-o.h);return(o.t=='c'||o.t=='h')&&o.x-G.px<40&&o.x-G.px>-12&&rel>14&&rel<=110});if(o)mantleTo(o)}
+if(SV.tr.gainer&&is('gainer',c)&&!G.gnd&&G.ledge&&!G.fc.back&&!(G.rt!=G.rot&&G.rt>G.rot)){G.fc.back=1;G.rt-=TAU;G.pop.push({x:G.px,y:G.py-75,txt:'GAINER!',l:.7})}
+if(SV.tr.boost&&is('boost',c)&&G.flow>=5&&G.boostT<=0){G.boostT=1.2;add(20*cm(),'FLOW BOOST');G.flow=0}
+if(!G.gnd){const hit=TRICKS.find(t=>t.bind&&!t.u&&is(t.id,c)&&(t.r=='any'||t.r==SV.ride));
+ if(hit){if(!SV.tr[hit.id]){if(G.lockT<=0){G.lockT=1;G.pop.push({x:G.px,y:G.py-75,txt:'🔒 '+hit.n+' (buy in shop)',l:1})}}
+ else if(!G.an&&!G.at.includes(hit.id)){G.an={id:hit.id,t:0,d:DUR[hit.id]||.5}}}}
+if(is('vault',c))vault();
+if(G.gnd&&SV.tr.quick){const dir=is('right',c)?1:is('left',c)?-1:0,now=performance.now();
+ if(dir){if(G.lastDir==dir&&now-G.quickLast<260){quickstep(dir);G.quickLast=0}else{G.lastDir=dir;G.quickLast=now}}
+ else if(is('quick',c))quickstep(held('left')&&!held('right')?-1:1)}
+if(!G.gnd&&SV.tr.brake&&!G.br&&is('brake',c)&&Math.abs(G.vx)>150){G.br=1;G.vx*=.55;G.brakeT=.18;add(6*cm()*(SV.eq.jacket?1.1:1),'AIR BRAKE');dust(G.px,G.py,5)}
+if(!G.gnd&&SV.tr.dash&&!G.ad&&is('dash',c)){G.ad=1;G.vx=Math.max(G.vx,300)+340*(SV.eq.wrist?1.2:1);G.vy*=.5;dust(G.px,G.py,8);add(4*cm()*(SV.eq.jacket?1.1:1),'AIR DASH')}
+if(!G.gnd&&SV.tr.stomp&&!G.st&&is('stomp',c)){G.st=1;G.vy=Math.max(G.vy,950);G.vx*=.9}
+});
 cv.onclick=()=>{if(G&&!G.dead&&!document.pointerLockElement)try{cv.requestPointerLock()}catch(e){}};
 addEventListener('keyup',e=>K[e.code]=0);addEventListener('blur',()=>K={});
-addEventListener('mousemove',e=>{if(!G||G.dead||!(K.KeyE||K.KeyQ||K.KeyF))return;
+addEventListener('mousemove',e=>{if(!G||G.dead||!(held('modE')||held('modQ')||held('modF')))return;
 const n=performance.now();mb.push({t:n,x:e.movementX||0,y:e.movementY||0});while(mb.length&&n-mb[0].t>140)mb.shift();
 let dx=0,dy=0;mb.forEach(m=>{dx+=m.x;dy+=m.y});
-if(Math.hypot(dx,dy)>70&&G.cool<=0){G.cool=.18;mb=[];flick(K.KeyE?'E':K.KeyQ?'Q':'F',Math.abs(dy)>Math.abs(dx)?(dy<0?'U':'D'):(dx<0?'L':'R'))}});
+if(Math.hypot(dx,dy)>70&&G.cool<=0){G.cool=.18;mb=[];flick(held('modE')?'E':held('modQ')?'Q':'F',Math.abs(dy)>Math.abs(dx)?(dy<0?'U':'D'):(dx<0?'L':'R'))}});
 
 /* ---------- DRAW ---------- */
 const hs=n=>{const s=Math.sin(n*127.1)*43758.5;return s-Math.floor(s)};
@@ -343,8 +385,8 @@ ctx.textAlign='left';ctx.font='bold 22px system-ui';ctx.shadowColor='#000';ctx.s
 ctx.fillText('🪙 '+p.coins+'  carried (lose all if you fall!)',20,34);
 ctx.fillText(Math.round(Math.abs(p.vx)/6)+' km/h'+(p.chain?'   🔥 BHOP x'+p.chain:'')+(p.flow>0?'   ⚡ FLOW x'+p.flow:''),20,64);
 ctx.font='14px system-ui';ctx.fillStyle='#fff';
-ctx.fillText(Object.keys(SV.tr).length?'Hold E / Q / F in the air and flick the mouse · X = cash out':'Tip: press jump right as you land = BHOP for coins · X = cash out & leave',20,H-14);if(!document.pointerLockElement){ctx.fillStyle='#ffe066';ctx.fillText('Click the game to capture the mouse',20,H-36)}
-if(!p.gnd&&(K.KeyE||K.KeyQ||K.KeyF)){ctx.textAlign='center';ctx.font='bold 18px system-ui';ctx.fillStyle='#7df9ff';ctx.fillText('FLICK MOUSE!',p.px-cam,p.py-100)}
+ctx.fillText(Object.keys(SV.tr).length?'Hold '+keys('modE')+' / '+keys('modQ')+' / '+keys('modF')+' in the air and flick the mouse · '+keys('cash')+' = cash out (on the ground)':'Tip: press jump right as you land = BHOP for coins · '+keys('cash')+' = cash out & leave (on the ground)',20,H-14);if(!document.pointerLockElement){ctx.fillStyle='#ffe066';ctx.fillText('Click the game to capture the mouse',20,H-36)}
+if(!p.gnd&&(held('modE')||held('modQ')||held('modF'))){ctx.textAlign='center';ctx.font='bold 18px system-ui';ctx.fillStyle='#7df9ff';ctx.fillText('FLICK MOUSE!',p.px-cam,p.py-100)}
 if(p.dead){ctx.textAlign='center';ctx.font='bold 56px system-ui';ctx.fillStyle='#ff4d6d';ctx.fillText('WIPEOUT!',W/2,H/2)}
 ctx.shadowBlur=0}
 let last=0;function loop(t){const dt=Math.min(.033,(t-last)/1000||0);last=t;if(G)update(dt);draw(t);requestAnimationFrame(loop)}
