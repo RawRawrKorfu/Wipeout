@@ -29,7 +29,7 @@ h1{margin:0 0 4px;font-size:28px;letter-spacing:2px;color:#ffd34d}
 <div class="tabs"><button class="tab" data-t="tricks">Tricks</button><button class="tab" data-t="parkour">Parkour</button><button class="tab" data-t="tech">Tech</button><button class="tab" data-t="rides">Rides</button><button class="tab" data-t="skins">Skins</button><button class="tab" data-t="clothes">Clothes</button><button class="tab" data-t="controls">Controls</button></div>
 <div id="list"></div>
 <button id="play">▶ PLAY (Enter)</button>
-<p class="help"><b>Every key is rebindable in the Controls tab</b> (defaults shown here). <b>D/A</b> run · <b>S</b> slide (under red blocks) · <b>W/Space</b> jump — press jump right as you land for a <b>BHOP</b> (coins + speed). Hold <b>E</b> and flick the mouse in the air: up = frontflip, down = backflip, right = spin, left = superman. Hold <b>Q</b> or <b>F</b> + flick for skateboard/scooter/freestyle tricks. <b>Double jump</b> (Parkour tab): press jump again in the air. <b>Roll:</b> tap Roll (or slide) just before landing from a drop. <b>Slide-hop:</b> jump, tap/hold slide as you land, jump again to keep your bhop chain. <b>X</b> = cash out (only while standing on the ground). The mouse is captured while playing (click the game if Esc released it). Land upright to bank tricks. <b>Fall = lose everything you carried.</b></p>
+<p class="help"><b>Every key is rebindable in the Controls tab</b> (defaults shown here). <b>D/A</b> run · <b>S</b> slide (under red blocks) · <b>W/Space</b> jump — press jump right as you land for a <b>BHOP</b> (coins + speed). Hold <b>E</b> and flick the mouse in the air: up = frontflip, down = backflip, right = spin, left = superman. Hold <b>Q</b> or <b>F</b> + flick for skateboard/scooter/freestyle tricks. <b>Double jump</b> (Parkour tab): press jump again in the air. <b>Roll:</b> tap Roll (or slide) just before landing from a drop. <b>Slide-hop:</b> jump, tap/hold slide as you land, jump again to keep your bhop chain. <b>X</b> = cash out (ground or air, but not once you're falling into a pit). The mouse is captured while playing (click the game if Esc released it). Land upright to bank tricks. <b>Fall = lose everything you carried.</b></p>
 </div></div>
 <script>
 const $=id=>document.getElementById(id),cv=$('c'),ctx=cv.getContext('2d'),TAU=Math.PI*2;
@@ -107,7 +107,7 @@ let SV={bank:0,tr:{},rides:{foot:1},skins:{0:1},skin:0,cl:{},eq:{},ride:'foot'};
 const DEF={right:['KeyD','ArrowRight'],left:['KeyA','ArrowLeft'],slide:['KeyS','ArrowDown'],jump:['KeyW','Space','ArrowUp'],cash:['KeyX'],play:['Enter'],modE:['KeyE'],modQ:['KeyQ'],modF:['KeyF'],vault:['KeyV']};
 TRICKS.forEach(t=>{if(t.bind)DEF[t.id]=[t.bind]});
 const CORE=['right','left','slide','jump','cash'];
-const CORE_UI=[['right','Run forward','Hold to run · also air control'],['left','Run back / air control','Double-tap for Quickstep (if owned)'],['slide','Slide','Slide under red blocks · also buffers rolls'],['jump','Jump','Bhop, double jump, wall/ramp/slide jumps'],['cash','Cash out','Only works while standing on the ground'],['vault','Vault (Speed / Kong)','Near a crate, wall or roof edge'],['modE','Flip key','Hold + flick the mouse (default E)'],['modQ','Board / scooter key','Hold + flick the mouse (default Q)'],['modF','Freestyle key','Hold + flick the mouse (default F)'],['play','Start game (menu)','Same as clicking PLAY']];
+const CORE_UI=[['right','Run forward','Hold to run · also air control'],['left','Run back / air control','Double-tap for Quickstep (if owned)'],['slide','Slide','Slide under red blocks · also buffers rolls'],['jump','Jump','Bhop, double jump, wall/ramp/slide jumps'],['cash','Cash out','Works on the ground or in the air (not in a pit)'],['vault','Vault (Speed / Kong)','Near a crate, wall or roof edge'],['modE','Flip key','Hold + flick the mouse (default E)'],['modQ','Board / scooter key','Hold + flick the mouse (default Q)'],['modF','Freestyle key','Hold + flick the mouse (default F)'],['play','Start game (menu)','Same as clicking PLAY']];
 const nSlots=id=>Math.max(2,DEF[id].length);
 function normBinds(sv){const out={},seen={};
 for(const id in DEF){let a=sv&&sv[id];if(typeof a=='string')a=[a];if(!Array.isArray(a))a=DEF[id].slice();
@@ -165,7 +165,7 @@ $('play').onclick=e=>{e.target.blur();start()};
 /* ---------- GAME ---------- */
 let G=null,K={},mb=[];
 function start(){$('menu').style.display='none';try{const r=cv.requestPointerLock();if(r&&r.catch)r.catch(()=>{})}catch(e){}
-G={px:200,py:GY,vx:0,vy:0,ppy:GY,gnd:true,gT:1,jb:0,slide:false,rot:0,rt:0,fc:{front:0,back:0},an:null,at:[],chain:0,coins:0,lost:0,pop:[],pt:[],ob:[],cn:[],gx:700,cam:200-W*.3,t:0,dead:false,dt:0,on:null,cool:0,dj:0,sT:0,ad:0,st:0,slT:0,flow:0,flowT:0,vlt:0,wk:0,vk:null,airT:0,ledge:0,rollT:0,wallT:0,catT:0,lastDir:0,quickLast:0,boostT:0,brakeT:0,djq:0,wr:0,br:0,quickCD:0,rollBuf:0,lockT:0,apex:GY,takeoffY:GY};
+G={px:200,py:GY,vx:0,vy:0,ppy:GY,gnd:true,gT:1,jb:0,slide:false,rot:0,rt:0,fc:{front:0,back:0},an:null,at:[],chain:0,coins:0,lost:0,pop:[],pt:[],ob:[],cn:[],gx:700,cam:200-W*.3,t:0,dead:false,dt:0,on:null,cool:0,dj:0,sT:0,ad:0,st:0,slT:0,flow:0,flowT:0,vlt:0,wk:0,vk:null,airT:0,ledge:0,rollT:0,wallT:0,catT:0,lastDir:0,quickLast:0,boostT:0,brakeT:0,seg:[],djq:0,wr:0,br:0,quickCD:0,rollBuf:0,lockT:0,apex:GY,takeoffY:GY};
 for(let i=0;i<5;i++)G.cn.push({x:420+i*36,y:GY-28,g:0})}
 const surf=x=>{let y=GY;for(const o of G.ob){if(x<o.x||x>o.x+o.w)continue;if(o.t=='p')return 1e9;if(o.t=='r')y=Math.min(y,GY-o.h*(x-o.x)/o.w);if(o.t=='c'||o.t=='h')y=Math.min(y,GY-o.h)}return y};
 const rampAt=x=>G.ob.find(o=>o.t=='r'&&x>=o.x&&x<=o.x+o.w);
@@ -183,15 +183,15 @@ const s=p.gx,n=2+(Math.random()*4|0);for(let i=0;i<n;i++)p.cn.push({x:s+80+i*36,
 function add(n,txt){if(txt&&SV.tr.flow){n*=1+.1*Math.min(G.flow,10);G.flow++;G.flowT=3.5+(SV.eq.bandana?1.5:0)}n=Math.max(1,Math.round(n));G.coins+=n;G.pop.push({x:G.px,y:G.py-75,txt:'+'+n+(txt?' '+txt:''),l:1.3})}
 function dust(x,y,n){for(let i=0;i<n;i++)G.pt.push({x,y,vx:(Math.random()-.5)*160,vy:-Math.random()*120,l:.5})}
 function crash(){const p=G;if(p.dead)return;p.dead=true;p.lost=p.coins;p.coins=0;p.dt=0;p.vy=-380;p.vx=-Math.abs(p.vx)*.25;dust(p.px,p.py,18)}
-// Cash out only while standing on solid ground (mid-air / falling into a pit no longer banks your coins)
-function cash(){if(!G||G.dead)return;if(!G.gnd){G.pop.push({x:G.px,y:G.py-75,txt:'Land to cash out',l:.8});return}const c=Math.round(G.coins*(SV.eq.chain?1.1:1));SV.bank+=c;save();menu('Cashed out with '+c+' coins! 🪙')}
+// Cash out works on the ground or in the air, but not once you've already dropped below street level into a pit
+function cash(){if(!G||G.dead)return;const c=Math.round(G.coins*(SV.eq.chain?1.1:1));SV.bank+=c;save();menu('Cashed out with '+c+' coins! 🪙')}
 
 /* shared helpers used by both the keyboard handler and update() */
 const maxSpd=()=>310*RIDES[SV.ride].sp*(1+.07*Math.min(G.chain,12))*(SV.eq.hoodie?1.08:1)*(SV.eq.jacket?1.05:1);
 const nearGround=()=>G.vy>0&&surf(G.px)-G.py<55;
 const wallNear=r=>G.ob.find(o=>(o.t=='c'||o.t=='h')&&o.x-G.px<r&&o.x-G.px>-8&&G.py>GY-o.h+10&&G.py<GY-o.h+150);
-function landReset(){const p=G;p.st=0;p.ad=0;p.dj=0;p.djq=0;p.wr=0;p.br=0;p.airT=0;p.ledge=0;p.rot=p.rt=0;p.fc={front:0,back:0};p.at=[];p.an=null;p.apex=p.takeoffY=p.py}
-function doubleJump(){const p=G;p.dj=1;p.djq=0;p.vy=-600;dust(p.px,p.py,5);p.pop.push({x:p.px,y:p.py-75,txt:'DOUBLE JUMP',l:.7})}
+function landReset(){const p=G;p.st=0;p.ad=0;p.dj=0;p.djq=0;p.wr=0;p.br=0;p.airT=0;p.ledge=0;p.rot=p.rt=0;p.fc={front:0,back:0};p.at=[];p.seg=[];p.an=null;p.apex=p.takeoffY=p.py}
+function doubleJump(){const p=G;for(const f of['front','back']){const c=p.fc[f];if(c==1)p.at.push(f);else if(c>=2)p.at.push('d'+f)}p.fc={front:0,back:0};p.seg=[];p.dj=1;p.djq=0;p.vy=-600;dust(p.px,p.py,5);p.pop.push({x:p.px,y:p.py-75,txt:'DOUBLE JUMP',l:.7})}
 function fling(k){const p=G;p.gnd=false;p.ledge=0;
 if(k=='s'){p.vy=-720;p.vx=Math.max(p.vx,maxSpd())*1.45;add(12*cm(),'SLIDE FLING')}
 else{p.vy=-Math.min(1000,860+p.vx*.2);p.vx*=1.2;add(12*cm(),'RAMP FLING')}dust(p.px,p.py,6)}
@@ -221,7 +221,7 @@ const t=TRICKS.find(t=>t.k==k&&t.d==d&&(t.r=='any'||t.r==SV.ride));if(!t)return;
 if(!SV.tr[t.id]){p.pop.push({x:p.px,y:p.py-75,txt:'🔒 '+t.n+' (buy in shop)',l:1});return}
 if(t.id=='front'||t.id=='back'){const dir=t.id=='front'?1:-1;if(p.rt!=p.rot&&Math.sign(p.rt-p.rot)!=dir)return;
 if(p.fc[t.id]>=1&&(!SV.tr['d'+t.id]||p.fc[t.id]>=2))return;p.fc[t.id]++;p.rt+=dir*TAU}
-else if(!p.an&&!p.at.includes(t.id))p.an={id:t.id,t:0,d:DUR[t.id]||.4}}
+else if(!p.an&&!p.seg.includes(t.id))p.an={id:t.id,t:0,d:DUR[t.id]||.4}}
 function update(dt){const p=G;
 if(p.dead){p.dt+=dt;p.vy+=1900*dt;p.py+=p.vy*dt;p.px+=p.vx*dt;p.rot+=9*dt;if(p.dt>1.4)menu('Wiped out! You lost '+p.lost+' coins. 💥');return}
 p.t+=dt;p.jb=Math.max(0,p.jb-dt);p.cool-=dt;p.vlt-=dt;p.wk-=dt;p.rollT-=dt;p.wallT=Math.max(0,p.wallT-dt);p.catT=Math.max(0,p.catT-dt);p.boostT=Math.max(0,p.boostT-dt);p.brakeT=Math.max(0,p.brakeT-dt);p.quickCD-=dt;p.rollBuf-=dt;p.lockT-=dt;p.slT=p.slide?p.slT+dt:0;if(p.flowT>0){p.flowT-=dt;if(p.flowT<=0)p.flow=0}if(p.vk){p.vk.t+=dt;if(p.vk.t>p.vk.d)p.vk=null}
@@ -258,7 +258,7 @@ if(p.vy>=0&&p.py>=s&&p.ppy<=s+6&&s<1e9)land(s);
 else if(s<1e9&&p.py>s+14)return crash();
 if(p.py>GY+150)return crash();
 if(p.rot!=p.rt){const st=TAU/.34*(SV.eq.gloves?1.25:1)*dt;if(Math.abs(p.rt-p.rot)<=st)p.rot=p.rt;else p.rot+=Math.sign(p.rt-p.rot)*st}
-if(p.an){p.an.t+=dt;if(p.an.t>=p.an.d){p.at.push(p.an.id);p.an=null}}}
+if(p.an){p.an.t+=dt;if(p.an.t>=p.an.d){p.at.push(p.an.id);p.seg.push(p.an.id);p.an=null}}}
 for(const c of p.cn)if(!c.g){
 const magnet=SV.tr.magnet&&!p.gnd&&Math.abs(c.x-p.px)<80&&Math.abs(c.y-(p.py-26))<75;
 if((Math.abs(c.x-p.px)<28&&Math.abs(c.y-(p.py-26))<42)||magnet){c.g=1;const w=SV.eq.crown?2:1;p.coins+=w;p.pop.push({x:c.x,y:c.y-10,txt:'+'+w,l:.6})}}
@@ -304,7 +304,7 @@ if(SV.tr.gainer&&is('gainer',c)&&!G.gnd&&G.ledge&&!G.fc.back&&!(G.rt!=G.rot&&G.r
 if(SV.tr.boost&&is('boost',c)&&G.flow>=5&&G.boostT<=0){G.boostT=1.2;add(20*cm(),'FLOW BOOST');G.flow=0}
 if(!G.gnd){const hit=TRICKS.find(t=>t.bind&&!t.u&&is(t.id,c)&&(t.r=='any'||t.r==SV.ride));
  if(hit){if(!SV.tr[hit.id]){if(G.lockT<=0){G.lockT=1;G.pop.push({x:G.px,y:G.py-75,txt:'🔒 '+hit.n+' (buy in shop)',l:1})}}
- else if(!G.an&&!G.at.includes(hit.id)){G.an={id:hit.id,t:0,d:DUR[hit.id]||.5}}}}
+ else if(!G.an&&!G.seg.includes(hit.id)){G.an={id:hit.id,t:0,d:DUR[hit.id]||.5}}}}
 if(is('vault',c))vault();
 if(G.gnd&&SV.tr.quick){const dir=is('right',c)?1:is('left',c)?-1:0,now=performance.now();
  if(dir){if(G.lastDir==dir&&now-G.quickLast<260){quickstep(dir);G.quickLast=0}else{G.lastDir=dir;G.quickLast=now}}
@@ -385,7 +385,7 @@ ctx.textAlign='left';ctx.font='bold 22px system-ui';ctx.shadowColor='#000';ctx.s
 ctx.fillText('🪙 '+p.coins+'  carried (lose all if you fall!)',20,34);
 ctx.fillText(Math.round(Math.abs(p.vx)/6)+' km/h'+(p.chain?'   🔥 BHOP x'+p.chain:'')+(p.flow>0?'   ⚡ FLOW x'+p.flow:''),20,64);
 ctx.font='14px system-ui';ctx.fillStyle='#fff';
-ctx.fillText(Object.keys(SV.tr).length?'Hold '+keys('modE')+' / '+keys('modQ')+' / '+keys('modF')+' in the air and flick the mouse · '+keys('cash')+' = cash out (on the ground)':'Tip: press jump right as you land = BHOP for coins · '+keys('cash')+' = cash out & leave (on the ground)',20,H-14);if(!document.pointerLockElement){ctx.fillStyle='#ffe066';ctx.fillText('Click the game to capture the mouse',20,H-36)}
+ctx.fillText(Object.keys(SV.tr).length?'Hold '+keys('modE')+' / '+keys('modQ')+' / '+keys('modF')+' in the air and flick the mouse · '+keys('cash')+' = cash out':'Tip: press jump right as you land = BHOP for coins · '+keys('cash')+' = cash out & leave',20,H-14);if(!document.pointerLockElement){ctx.fillStyle='#ffe066';ctx.fillText('Click the game to capture the mouse',20,H-36)}
 if(!p.gnd&&(held('modE')||held('modQ')||held('modF'))){ctx.textAlign='center';ctx.font='bold 18px system-ui';ctx.fillStyle='#7df9ff';ctx.fillText('FLICK MOUSE!',p.px-cam,p.py-100)}
 if(p.dead){ctx.textAlign='center';ctx.font='bold 56px system-ui';ctx.fillStyle='#ff4d6d';ctx.fillText('WIPEOUT!',W/2,H/2)}
 ctx.shadowBlur=0}
